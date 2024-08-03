@@ -11,7 +11,7 @@ struct MouseState {
     points: VecDeque<(f64, f64)>, // Punti del mouse per cerchio, rettangolo e segno -
 }
 
-pub fn shapeRecognizer() {
+pub fn shape_recognizer() {
     // Crea un event loop per ottenere la dimensione dello schermo
     let event_loop = EventLoop::new();
     let primary_monitor = event_loop.primary_monitor().unwrap();

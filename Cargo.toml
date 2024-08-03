@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 rdev = "0.5.3"
 winit = "0.28"
+sysinfo = "0.24.2"
+walkdir = "2.3.2"
+crossbeam-channel = "0.5.13"
