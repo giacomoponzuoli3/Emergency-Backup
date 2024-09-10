@@ -5,6 +5,8 @@ use crate::shapeRecognize::shape_recognizer;
 mod shapeRecognize;
 mod backup;
 mod log;
+mod mainBackground;
+mod uninstallBackground;
 
 fn main() {
     //shape_recognizer()
