@@ -19,7 +19,7 @@ path = "src/uninstallBackground.rs"
 [dependencies]
 rdev = "0.5.3"
 winit = "0.28"
-sysinfo = "0.24.2"
+sysinfo = "0.26.0"
 walkdir = "2.3.2"
 crossbeam-channel = "0.5.13"
 auto-launch = "0.5.0"
