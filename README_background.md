@@ -1,13 +1,17 @@
 # Group35
-L'applicazione fornisce un modo utile per evitare la perdita di dati a causa di un monitor non funzionante, mentre sei ancora in grado di muovere il mouse. Quando si verifica una situazione critica (o se vuoi semplicemente eseguire il backup di alcuni dati), puoi disegnare un semplice gesto con il mouse, tracciando un rettangolo seguendo i bordi del monitor, e quindi confermare con uno scorrimento da sinistra a destra.
+L'applicazione fornisce un modo utile per evitare la perdita di dati a causa di un monitor non funzionante, mentre sei ancora in grado di muovere il mouse. 
+Quando si verifica una situazione critica (o se vuoi semplicemente eseguire il backup di alcuni dati), puoi disegnare un semplice gesto con il mouse, 
+tracciando, ad esempio, un rettangolo seguendo i bordi del monitor, e quindi confermare con uno scorrimento da sinistra a destra.
 
 
 ## Installazione
-L'app è portatile, quindi è sufficiente utilizzare l'eseguibile appropriato, come elencato di seguito, in base al sistema operativo in uso.
+L'app è portatile, cioè è un programma software che può essere eseguito su un computer senza dover essere installato nel sistema operativo, quindi è sufficiente utilizzare l'eseguibile appropriato, come elencato di seguito, in base al sistema operativo in uso.
 
-## Funzionamento Applicativo
+## Funzionamento
 Per lanciare i comandi seguenti assicurati di essere nella directory principale del progetto.
-
+Il programma è composto dai seguenti file:
+- `mainBackground.rs`: contiene un'applicazione che esegue periodicamente alcune operazioni in background, tra cui la registrazione su un file di log ogni secondo per un periodo di tempo, oltre a configurare l'avvio automatico dell'applicazione all'avvio del sistema operativo, con specifiche implementazioni per Windows, Linux e macOS
+- `uninstallBackground.rs`: questo file Rust ha l'obiettivo di disabilitare l'avvio automatico di un'applicazione chiamata "Group-35" e di terminare il processo dell'applicazione, a seconda del sistema operativo in uso (Windows, macOS, o Linux)
 ### Windows
 - **Esecuzione**: lanciare nel terminale il seguente comando
   ``` 

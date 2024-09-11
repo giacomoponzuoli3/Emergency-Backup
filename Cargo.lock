@@ -784,6 +784,7 @@ version = "0.1.0"
 dependencies = [
  "auto-launch",
  "crossbeam-channel",
+ "log",
  "rdev",
  "sysinfo",
  "walkdir",

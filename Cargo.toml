@@ -3,10 +3,19 @@ name = "progettoRust"
 version = "0.1.0"
 edition = "2021"
 
+[[bin]]
+name = "main" # Questo sarà il binario di default associato a main.rs
+path = "src/main.rs"
 
+[[bin]]
+name = "Group-35" # Questo sarà il binario di default associato a mainBackground.rs
+path = "src/mainBackground.rs"
+
+[[bin]]
+name = "uninstall" # Questo sarà il binario di default associato a uninstallBackground.rs
+path = "src/uninstallBackground.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
 rdev = "0.5.3"
 winit = "0.28"
@@ -14,3 +23,4 @@ sysinfo = "0.24.2"
 walkdir = "2.3.2"
 crossbeam-channel = "0.5.13"
 auto-launch = "0.5.0"
+log = "0.4.22"
