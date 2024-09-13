@@ -4,10 +4,10 @@ use rdev::{listen, EventType, Event};
 use std::sync::{Arc, Mutex, mpsc};
 use std::thread;
 use std::collections::VecDeque;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 use crate::beep::play_beep;
-
-
+use crate::log::log_with_tick;
 use crate::shapeRecognize::shape_recognizer;
 
 mod shapeRecognize;
@@ -24,6 +24,14 @@ struct MouseState {
 }
 
 fn main() {
+   let log_dir = Path::new("/Users/marco/Desktop/dati_per_backup");
+   let pid = std::process::id(); // Usa l'ID del processo corrente per testare
+
+   thread::spawn(move||{
+      log_with_tick(log_dir, pid as i32);
+   });
+   // Avvia il processo di monitoraggio della CPU
+
    let state = Arc::new(Mutex::new(MouseState {
       sides: [false; 4],
       points: VecDeque::new(),
@@ -43,7 +51,6 @@ fn main() {
    let logical_height = (size.height as f64 / scale_factor) as f64;
 
    let mut first_recognition_done = false;
-   let mut last_recognition_time = Instant::now();
    let mut enabled= true;
 
    loop {
@@ -52,14 +59,19 @@ fn main() {
             if !first_recognition_done {
                play_beep(Duration::from_millis(100)); // Bip corto
                first_recognition_done = true;
-               println!("1");
             }
 
+            // ---- QUI DEVE USCIRE UNA FINESTRA PER LA CONFERMA CON UN TIMER: SE ANNULLO NON SUCCEDE NIENTE
+            // ALTRIMENTI CONFERMO CON IL SECONDO SEGNO.
+            // LEGGENDO LA TRACCIA NON MI è CHIARO DOVE DOVREBBE USCIRE, SE QUA OPPURE DOPO AVER RICONOSCIUTO ANCHE IL SECONDO SEGNO
+
             if shape_recognizer("rettangolo", Arc::clone(&state), logical_width, logical_height, false) {
+
                play_beep(Duration::from_millis(500)); // Bip lungo
                println!("backup");
                enabled = false;
-               backup_execute().expect("errore");
+
+               backup_execute( &"/Volumes/ESD-USB".to_string() , &PathBuf::from("/Users/marco/Desktop/dati_per_backup"), &vec!["pdf".to_string()] ).expect("errore");
                enabled = true;
                first_recognition_done = false; // Resetta il flag per riconoscere di nuovo
             } else {
