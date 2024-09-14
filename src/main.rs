@@ -2,7 +2,7 @@ use winit::event_loop::EventLoop;
 use crate::backup::backup_execute;
 use rdev::{listen, EventType, Event};
 use std::sync::{Arc, Mutex, mpsc};
-use std::thread;
+use std::{env, thread};
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
@@ -24,11 +24,18 @@ struct MouseState {
 }
 
 fn main() {
-   let log_dir = Path::new("/Users/marco/Desktop/dati_per_backup");
+   // Get the current directory as a PathBuf
+   let path = env::current_dir().unwrap();
+
+   // You can directly use &path without converting to &str
+   let log_dir = path.clone();
+
+   //let log_dir = Path::new("/Users/marco/Desktop/dati_per_backup");
+
    let pid = std::process::id(); // Usa l'ID del processo corrente per testare
 
    thread::spawn(move||{
-      log_with_tick(log_dir, pid as i32);
+      log_with_tick(log_dir.as_path(), pid as i32).unwrap();
    });
    // Avvia il processo di monitoraggio della CPU
 

@@ -9,13 +9,20 @@ use sysinfo::{Pid, PidExt, ProcessExt, System, SystemExt};
 pub fn log_with_tick(log_dir: &Path, pid: i32) -> io::Result<()> {
     // Crea o apri il file di log nella directory specificata
     let log_file_path = log_dir.join("cpu_usage_log.txt");
-    let mut file = OpenOptions::new().create(true).append(true).open(&log_file_path)?;
+    let mut file = OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(&log_file_path)?;
 
     // Crea un ticker che scatta ogni 120 secondi
     let ticker = start_ticker(Duration::from_secs(5));
 
     // Inizia a monitorare la CPU del processo
     let mut system = System::new_all();
+
+    //ottengo il numero di CPU logiche (core)
+    let num_core = system.cpus().len();
+
     loop {
         // Aspetta che il ticker riceva un segnale
         ticker.recv().unwrap();
@@ -28,9 +35,12 @@ pub fn log_with_tick(log_dir: &Path, pid: i32) -> io::Result<()> {
             let cpu_usage = process.cpu_usage();
             let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
+            //normalizzo il valore di utilizzo della CPU dividendo per il numero di core
+            let normalized_cpu_usage = cpu_usage / num_core as f32;
+
             // Scrivi le informazioni nel file di log
-            writeln!(file, "{} - CPU Usage: {:.2}%", timestamp, cpu_usage)?;
-            println!("Logged: {} - CPU Usage: {:.2}%", timestamp, cpu_usage);
+            writeln!(file, "{} - CPU Usage: {:.2}%", timestamp, normalized_cpu_usage)?;
+            println!("Logged: {} - CPU Usage: {:.2}%", timestamp, normalized_cpu_usage);
         } else {
             eprintln!("Processo con PID {} non trovato!", pid);
         }
