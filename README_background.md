@@ -30,16 +30,30 @@ Il programma è composto dai seguenti file:
     - **copiare i file**: Utilizza la funzione copy_directory per copiare tutto il contenuto della directory corrente nella directory di backup appena creata
     - **creare un file di report**: Alla fine del processo, viene creato un file di testo backup_report.txt nella directory di backup, che registra il tempo impiegato e la quantità di byte copiati
     - **messaggio di completamento**: Il programma informa l'utente che il backup è stato completato correttamente
+- `log.rs`: questo codice monitora periodicamente l'utilizzo della CPU di un processso specificato e registra le varie informazione all'interno di un file txt posizionato nella cartella principale del progetto. 
+Il processo viene identificato in maniera univoca attraverso il suo PID, e il file viene aggiornato ogni 5 secondi, registrando l'utilizzo della CPU normalizzato al numero di core presenti sulla macchina. Sono presenti le seguenti funzioni:
+  - `lock_with_tick`: restituisce un Result che indica se le operazioni di identificazione del processo e scrittura su file di log hanno avuto successo o meno. Esegue le seguenti operazioni:
+    - **apertura o creazione di un file di log**
+    - **creazione di un ticker**
+    - **recupero sull'utilizzo della cpu**
+    - **scrittura sul file di log**
+  - `start_ticker`: crea un "ticker", cioè un meccanismo che invia segnali (mediante l'utilizzo di canali) a intervalli regolari di 5 secondi. Restituisce un `Receiver`, il quale viene utilizzato all'interno del ciclo principale 
+
 
 ### Windows
 - **Esecuzione**: lanciare nel terminale il seguente comando
   ``` 
   release\windows\Group35.exe
   ```
-- Per qualsiasi **modifica** al codice, disinstallare il programma, quindi eseguire lo script per ricostruire il progetto eseguendo il seguente comando
+- Per qualsiasi **modifica** al codice, disinstallare il programma ed eseguire lo script per ricostruire il progetto eseguendo il seguente comando
   ```
   windows_build_release.bat
   ``` 
+  Se hai problemi, assicurati che i permessi di esecuzione siano impostati correttamente. Puoi fare ciò eseguendo:
+  ```
+  chmod +x windows_build_release.bat
+  windows_build_release.bat
+  ```
 - **Terminazione processi background**: per terminare l'esecuzione dei vari processi in background eseguire il comando
   ``` 
   release/windows/uninstall.exe
@@ -61,13 +75,13 @@ Lo script `windows_build_release.bat` effettua i seguenti passaggi:
     - elenco vari programmi (esempio quello della gui ecc)
     - lanciare `release/macos/uninstall`
     - lanciare `release/macos/Group35`
-- Per qualsiasi **modifica** del codice, disintallare il programma, ed eseguire lo script per fare il rebuild del progetto 
+- Per qualsiasi **modifica** del codice, disintallare il programma ed eseguire lo script per fare il rebuild del progetto 
   ```
   macos_build_release.sh
   ```
   Se hai problemi, assicurati che i permessi di esecuzione siano impostati correttamente. Puoi fare ciò eseguendo:
   ```
-  chmod +x release/macos/Group35
+  chmod +x macos_build_release.sh
   macos_build_release.sh
   ```
 - **Terminazione processi background**: per terminare l'esecuzione dei vari processi in background eseguire il comando 
@@ -87,13 +101,13 @@ Lo script `macos_build_release.sh` effettua i seguenti passaggi:
   ```
   release/linux/Group35
   ```
--  Per qualsiasi **modifica** del codice, disintallare il programma, ed eseguire lo script per fare il rebuild del progetto
+-  Per qualsiasi **modifica** del codice, disintallare il programma ed eseguire lo script per fare il rebuild del progetto
   ```
   linux_build_release.sh
   ```
   Se hai problemi, assicurati che i permessi di esecuzione siano impostati correttamente. Puoi fare ciò eseguendo:
   ```
-  chmod +x release/linux/Group35
+  chmod +x linux_build_release.sh
   linux_build_release.sh
   ```
 - **Terminazione processi background**: per terminare l'esecuzione dei vari processi in background eseguire il comando 

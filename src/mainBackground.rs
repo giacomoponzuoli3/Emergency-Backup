@@ -68,12 +68,57 @@ fn main() {
             .expect("Failed to hide terminal"); //Se il comando non viene eseguito correttamente
     }
 
-    /*
-    eventuali altre esecuzioni in background
-    ...
-    */
 
-    loop {
-        log_with_tick().unwrap();
+    /* Processo di che avvia l'applicazione  */
+    let exe = env::current_exe().unwrap(); // exe path
+    let wd = exe.parent().unwrap();
+    let backup_path = wd.join("main");
+
+
+    //avvio background dell'app
+    #[cfg(target_os = "windows")]
+    {
+        let output = Command::new("tasklist") //controllo la lista dei processi attivi in windows
+            .args(&["/FI", "IMAGENAME eq main.exe", "/FO", "CSV", "/NH"]) //filtro per quelli che hanno il nome "main.exe" e li metto in un formato CSV
+            .output()
+            .expect("Failed to execute command");
+
+        let exists = String::from_utf8_lossy(&output.stdout).split(",").count() > 1; //output viene decodificato
+
+        if exists { //se è già nella lista dei processi in esecuzione
+            println!("Backup App already running!");
+        } else { //altrimenti lo avvio
+            let mut backup_app = Command::new(backup_path)
+                .spawn()
+                .expect("Failed to create backup");
+
+            backup_app.wait().expect("Failed to wait on backup");
+        }
+
+
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let pid = Command::new("pgrep")  //cerca il processo con il nome specificato da dal path
+            .args(&["-f", &backup_path.to_str().unwrap()])
+            .output();
+        //se restituisce Ok(Output) significa che è già in esecuzione altrimneti in base al SO bisogna attivarlo
+
+        match &pid {
+            Ok(_) => {
+                //se il processo è in esecuzione il comando restituisce su stdout il pid del processo altrimenti stdout è vuoto
+                if !pid.unwrap().stdout.is_empty() {
+                    println!("Backup App already running!");
+                } else {
+                    let mut backup_app = Command::new(backup_path)
+                        .spawn()
+                        .expect("Failed to execute process");
+
+                    backup_app.wait().expect("Failed to wait on backup");
+                }
+            },
+            Err(e) => println!("Error: {}", e),
+        }
     }
 }

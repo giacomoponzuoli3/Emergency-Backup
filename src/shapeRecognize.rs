@@ -1,134 +1,106 @@
+use crate::MouseState;
 use rdev::{listen, EventType, Event};
 use std::sync::{Arc, Mutex};
 use std::thread;
-use winit::event_loop::{EventLoop, EventLoopWindowTarget};
-use winit::window::WindowBuilder;
-use winit::dpi::{PhysicalSize, LogicalSize};
 use std::collections::VecDeque;
+use std::time::{Duration, Instant};
 
-struct MouseState {
-    sides: [bool; 4], // [top, bottom, left, right]
-    points: VecDeque<(f64, f64)>, // Punti del mouse per cerchio, rettangolo e segno -
-}
+pub(crate) fn shape_recognizer(shape: &str, state: Arc<Mutex<MouseState>>, logical_width: f64, logical_height: f64, is_first_recognize:bool) -> bool {
+    let shape_to_recognize = shape.to_lowercase();
+    let result = Arc::new(Mutex::new(false));
+    let start_time = Instant::now(); // Tempo di avvio
 
-pub fn shape_recognizer() {
-    // Crea un event loop per ottenere la dimensione dello schermo
-    let event_loop = EventLoop::new();
-    let primary_monitor = event_loop.primary_monitor().unwrap();
+    // Thread per ascoltare gli eventi del mouse
+    let result_clone = Arc::clone(&result);
 
-    // Recupera le dimensioni fisiche del monitor
-    let size = primary_monitor.size(); // Dimensioni fisiche
-    let scale_factor = primary_monitor.scale_factor(); // Fattore di scaling
-
-    // Calcola le dimensioni logiche
-    let logical_width = (size.width as f64 / scale_factor) as f64;
-    let logical_height = (size.height as f64 / scale_factor) as f64;
-
-    let state = Arc::new(Mutex::new(MouseState {
-        sides: [false; 4], // Inizializza a false
-        points: VecDeque::new(), // Inizializza i punti per cerchio, rettangolo e segno -
-    }));
-
-    let state_clone = Arc::clone(&state);
-
-    // Avvia un thread per ascoltare gli eventi del mouse
     thread::spawn(move || {
-        listen(move |event: Event| {
-            let mut state = state_clone.lock().unwrap();
-            const TOLERANCE: f64 = 5.0; // Tolleranza per il rilevamento dei bordi
-            const CIRCLE_TOLERANCE: f64 = 25.0; // Tolleranza per riconoscere un cerchio
-            const HORIZONTAL_TOLERANCE: f64 = 5.0; // Tolleranza per riconoscere il segno -
+        let _ = std::panic::catch_unwind(|| {
+            listen(move |event: Event| {
+                let mut state = state.lock().unwrap();
+                const TOLERANCE: f64 = 5.0;
+                const CIRCLE_TOLERANCE: f64 = 27.0;
 
-            match event.event_type {
-                EventType::MouseMove { x, y } => {
-                    // Stampa le coordinate del mouse
-                   // println!("Coordinate del mouse: ({}, {})", x, y);
+                match event.event_type {
+                    EventType::MouseMove { x, y } => {
+                        state.points.push_back((x, y));
 
-                    // Aggiungi il punto alle coordinate
-                    state.points.push_back((x, y));
+                        if shape_to_recognize == "rettangolo" {
+                            if check_edges(&mut state, x, y, logical_width, logical_height, TOLERANCE).is_some() {
+                                *result_clone.lock().unwrap() = true;
+                            }
+                        }
 
-                    // Controlla i bordi dello schermo
-                    check_edges(&mut state, x, y, logical_width, logical_height, TOLERANCE);
-
-                    // Controlla se i punti formano un cerchio
-                    if state.points.len() > 5 {
-                        check_circle(&mut state.points, CIRCLE_TOLERANCE);
-                        check_horizontal_line(&mut state.points, HORIZONTAL_TOLERANCE);
+                        if state.points.len() > 5 {
+                            match shape_to_recognize.as_str() {
+                                "cerchio" => {
+                                    if check_circle(&mut state.points, CIRCLE_TOLERANCE).is_some() {
+                                        *result_clone.lock().unwrap() = true;
+                                    }
+                                }
+                                _ => {}
+                            }
+                        }
                     }
+                    _ => {}
                 }
-                _ => {}
-            }
-        }).unwrap();
+            }).unwrap();
+        });
     });
 
-    // Mantieni il thread principale attivo
+    // Attendere la risposta dal thread
     loop {
-        thread::park(); // Attende fino a quando non viene risvegliato
+
+            //println!("{:?}", start_time.elapsed());
+            // Verifica se è passato il tempo di timeout
+        if !is_first_recognize {
+            if start_time.elapsed() > Duration::from_secs(4) {
+                return false; // Timeout scaduto
+            }
+        }
+
+
+        if *result.lock().unwrap() {
+            return true; // Riconoscimento riuscito
+        }
+
+        //thread::sleep(Duration::from_millis(100)); // Pausa breve per evitare un loop di polling intensivo
     }
 }
 
-// Funzione per controllare se il mouse tocca i bordi dello schermo
-fn check_edges(state: &mut MouseState, x: f64, y: f64, width: f64, height: f64, tolerance: f64) {
+// Funzioni di controllo per cerchio, rettangolo e segno -
+fn check_edges(state: &mut MouseState, x: f64, y: f64, width: f64, height: f64, tolerance: f64) -> Option<()> {
     if y <= tolerance {
-        state.sides[0] = true; // Superiore
+        state.sides[0] = true;
     }
     if y >= height - tolerance {
-        state.sides[1] = true; // Inferiore
+        state.sides[1] = true;
     }
     if x <= tolerance {
-        state.sides[2] = true; // Sinistro
+        state.sides[2] = true;
     }
     if x >= width - tolerance {
-        state.sides[3] = true; // Destro
+        state.sides[3] = true;
     }
 
-    // Verifica se tutti i lati sono stati toccati
     if state.sides.iter().all(|&side| side) {
-        println!("OK");
-        state.sides = [false; 4]; // Resetta lo stato
+        state.sides = [false; 4];
+        return Some(());
     }
+    None
 }
 
-// Funzione per verificare se i punti formano un cerchio
-fn check_circle(points: &mut VecDeque<(f64, f64)>, tolerance: f64) {
+fn check_circle(points: &mut VecDeque<(f64, f64)>, tolerance: f64) -> Option<()> {
     if points.len() < 5 {
-        return;
+        return None;
     }
 
     let first_point = points.front().unwrap();
     let last_point = points.back().unwrap();
-
-    // Calcola la distanza tra il primo e l'ultimo punto
     let distance = ((last_point.0 - first_point.0).powi(2) + (last_point.1 - first_point.1).powi(2)).sqrt();
 
-    // Se la distanza è entro la tolleranza, considera un cerchio
     if distance <= tolerance {
-        println!("Cerchio riconosciuto!");
-        points.clear(); // Resetta i punti dopo aver riconosciuto il cerchio
+        points.clear();
+        return Some(());
     }
-}
-
-// Funzione per verificare se i punti formano una linea orizzontale (-)
-fn check_horizontal_line(points: &mut VecDeque<(f64, f64)>, tolerance: f64) {
-    if points.len() < 5 {
-        return;
-    }
-
-    // Calcola le coordinate estreme
-    let min_x = points.iter().map(|(x, _)| *x).fold(f64::INFINITY, f64::min);
-    let max_x = points.iter().map(|(x, _)| *x).fold(f64::NEG_INFINITY, f64::max);
-    let min_y = points.iter().map(|(_, y)| *y).fold(f64::INFINITY, f64::min);
-    let max_y = points.iter().map(|(_, y)| *y).fold(f64::NEG_INFINITY, f64::max);
-
-    // Calcola il centro della linea orizzontale
-    let horizontal_center = (min_y + max_y) / 2.0;
-
-    // Controlla se ci sono punti nella linea orizzontale
-    let horizontal_line = points.iter().filter(|(_, y)| (y - horizontal_center).abs() <= tolerance);
-
-    // Verifica se ci sono punti sufficienti nella linea orizzontale
-    if horizontal_line.count() >= 2 {
-        println!("Segno - riconosciuto!");
-        points.clear(); // Resetta i punti dopo aver riconosciuto il segno -
-    }
+    None
 }

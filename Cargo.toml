@@ -29,3 +29,5 @@ rfd = "0.11"
 csv = "1.3.0"
 serde = { version = "1.0.210", features = ["derive"] }
 dirs = "4.0"
+rodio = "0.17"
+chrono = "0.4.38"

@@ -63,10 +63,12 @@ impl Default for MyApp{
     fn default() -> Self {
         MyApp{
             radio_bootstrap : Some(Bootstrap::Negativo),
-            text_cartella_sorgente : "".to_string(),
+            text_cartella_sorgente : dirs::desktop_dir()
+                .map(|path| path.to_string_lossy().to_string())
+                .unwrap_or_else(|| "".to_string()),
             text_drive_destinazione: dirs::desktop_dir()
                 .map(|path| path.to_string_lossy().to_string()) // Se esiste, ottieni il percorso come stringa
-                .unwrap_or_else(|| "".to_string()),             // Altrimenti, imposta una stringa vuota
+                .unwrap_or_else(|| "".to_string()),                                   // Altrimenti, imposta una stringa vuota
             text_directory_log: dirs::desktop_dir()
                 .map(|path| path.to_string_lossy().to_string())
                 .unwrap_or_else(|| "".to_string()),
@@ -274,13 +276,13 @@ impl Sandbox for MyApp {
 /*
 fn main() -> iced::Result {
     MyApp::run(Settings {
-        window: iced::window::Settings {
-            size: iced::Size::new(800 as f32, 600 as f32),  // Imposta la dimensione della finestra
-            resizable: true,   // Permette di ridimensionare la finestra
-            ..Default::default()
-        },
-        ..Settings::default()
-    })
+      window: iced::window::Settings {
+         size: iced::Size::new(800 as f32, 700 as f32),  // Imposta la dimensione della finestra
+         resizable: true,   // Permette di ridimensionare la finestra
+         ..Default::default()
+      },
+      ..Settings::default()
+   }).expect("Errore");
 
 
     MessageDialog::new()
