@@ -34,10 +34,11 @@ fn main() {
 
    let pid = std::process::id(); // Usa l'ID del processo corrente per testare
 
+   // Avvia il processo di monitoraggio della CPU in maniera parallela rispetto alla funzionalità di backup
    thread::spawn(move||{
       log_with_tick(log_dir.as_path(), pid as i32).unwrap();
    });
-   // Avvia il processo di monitoraggio della CPU
+
 
    let state = Arc::new(Mutex::new(MouseState {
       sides: [false; 4],

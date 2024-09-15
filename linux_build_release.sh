@@ -16,6 +16,10 @@ if [ -f "target/release/Group-35" ]; then
     cp target/release/Group-35 release/linux/Group-35
 fi
 
+if [ -f "target/release/main" ]; then
+    cp target/release/main release/linux/main
+fi
+
 if [ -f "target/release/uninstall" ]; then
     cp target/release/uninstall release/linux/uninstall
 fi
