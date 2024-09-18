@@ -20,6 +20,7 @@ mod uninstallBackground;
 mod beep;
 mod gui;
 
+
 struct MouseState {
    sides: [bool; 4], // [top, bottom, left, right]
    points: VecDeque<(f64, f64)>, // Punti del mouse per cerchio, rettangolo e segno -
@@ -73,6 +74,7 @@ fn main() {
                first_recognition_done = true;
             }
 
+            println!("Recognition done!");
             // ---- QUI DEVE USCIRE UNA FINESTRA PER LA CONFERMA CON UN TIMER: SE ANNULLO NON SUCCEDE NIENTE
             // ALTRIMENTI CONFERMO CON IL SECONDO SEGNO.
             // LEGGENDO LA TRACCIA NON MI è CHIARO DOVE DOVREBBE USCIRE, SE QUA OPPURE DOPO AVER RICONOSCIUTO ANCHE IL SECONDO SEGNO

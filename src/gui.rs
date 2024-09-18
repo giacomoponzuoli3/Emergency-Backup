@@ -3,7 +3,7 @@ use std::fs::File;
 use std::path::Path;
 use csv::{Reader, Writer};
 use iced::widget::{button, column, radio, row, text, text_input, };
-use iced::{Alignment, Element, Sandbox};
+use iced::{Alignment, Element, Sandbox, Settings};
 use rfd::FileDialog;
 use rfd::MessageDialog;
 use serde::{Deserialize, Serialize};
@@ -273,8 +273,8 @@ impl Sandbox for MyApp {
         content.into()
     }
 }
-/*
-fn main() -> iced::Result {
+
+pub fn main() -> iced::Result {
     MyApp::run(Settings {
       window: iced::window::Settings {
          size: iced::Size::new(800 as f32, 700 as f32),  // Imposta la dimensione della finestra
@@ -290,5 +290,5 @@ fn main() -> iced::Result {
         .set_description("Il campo cartella sorgente è obbligatorio!")
         .set_buttons(rfd::MessageButtons::Ok)
         .show();
-
-}*/
+    Ok(())
+}

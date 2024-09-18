@@ -21,6 +21,9 @@ if exist target\release\Group-35.exe (
 if exist target\release\main.exe (
     copy target\release\main.exe release\windows\main.exe
 )
+if exist target\release\gui.exe (
+    copy target\release\gui.exe release\windows\gui.exe
+)
 
 if exist target\release\uninstall.exe (
     copy target\release\uninstall.exe release\windows\uninstall.exe

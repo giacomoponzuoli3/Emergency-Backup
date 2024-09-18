@@ -19,6 +19,10 @@ if [ -f "target/release/main" ]; then
     cp target/release/main release/macos/main
 fi
 
+if [ -f "target/release/gui" ]; then
+    cp target/release/gui release/macos/gui
+fi
+
 if [ -f "target/release/uninstall" ]; then
     cp target/release/uninstall release/macos/uninstall
 fi

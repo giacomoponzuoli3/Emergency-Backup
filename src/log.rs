@@ -31,7 +31,8 @@ pub fn log_with_tick(log_dir: &Path, pid: i32) -> io::Result<()> {
         system.refresh_processes();
 
         // Ottieni il consumo di CPU del processo specificato
-        if let Some(process) = system.process(Pid::from(pid as usize)) {
+        //nel caso di windows aggiungere "as usize"
+        if let Some(process) = system.process(Pid::from(pid)) {
             let cpu_usage = process.cpu_usage();
             let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
 
@@ -40,7 +41,7 @@ pub fn log_with_tick(log_dir: &Path, pid: i32) -> io::Result<()> {
 
             // Scrivi le informazioni nel file di log
             writeln!(file, "{} - CPU Usage: {:.2}%", timestamp, normalized_cpu_usage)?;
-            println!("Logged: {} - CPU Usage: {:.2}%", timestamp, normalized_cpu_usage);
+            //println!("Logged: {} - CPU Usage: {:.2}%", timestamp, normalized_cpu_usage);
         } else {
             eprintln!("Processo con PID {} non trovato!", pid);
         }

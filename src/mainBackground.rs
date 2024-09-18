@@ -3,11 +3,16 @@
 use auto_launch::{ AutoLaunchBuilder};
 use std::env;
 use std::process::{Command};
+use std::path::Path;
+use std::thread;
+use std::sync::mpsc;
+use std::sync::{Arc, Mutex};
 
 use std::fs::File;
 use std::io::{Error, Write};
 use std::time::{Duration, Instant};
 use crossbeam_channel::tick;
+
 
 // ESEMPIO BASE SCRITTURA FILE LOG OGNI 2 MINUTI
 // bisogna prendere l'utilizzo di CPU del processo
@@ -68,6 +73,20 @@ fn main() {
             .expect("Failed to hide terminal"); //Se il comando non viene eseguito correttamente
     }
 
+    /*
+    Controllo che non ci sia un file output.csv all'interno della directory corrente,
+    se non c'è lancio la gui altrimenti no
+    */
+
+    // Verifica se il file "output.csv" esiste nella directory corrente
+    if Path::new("output.csv").exists() {
+        println!("Il file 'output.csv' esiste. Non lancio la GUI");
+
+    } else {
+        println!("Il file 'output.csv' non esiste. Lancio la GUI");
+        // Avvia la GUI, gestisci eventuali errori
+    }
+
 
     /* Processo di che avvia l'applicazione  */
     let exe = env::current_exe().unwrap(); // exe path
@@ -95,7 +114,6 @@ fn main() {
             backup_app.wait().expect("Failed to wait on backup");
         }
 
-
     }
 
     #[cfg(not(target_os = "windows"))]
@@ -103,7 +121,7 @@ fn main() {
         let pid = Command::new("pgrep")  //cerca il processo con il nome specificato da dal path
             .args(&["-f", &backup_path.to_str().unwrap()])
             .output();
-        //se restituisce Ok(Output) significa che è già in esecuzione altrimneti in base al SO bisogna attivarlo
+        //se restituisce Ok(_) significa che non è avvenuto nessun errore e bisogna controllare che il processo sia in esecuzione tramite il pid
 
         match &pid {
             Ok(_) => {
@@ -121,4 +139,5 @@ fn main() {
             Err(e) => println!("Error: {}", e),
         }
     }
+
 }

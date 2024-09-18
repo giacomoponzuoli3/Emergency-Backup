@@ -15,6 +15,11 @@ path = "src/mainBackground.rs"
 name = "uninstall" # Questo sarà il binario di default associato a uninstallBackground.rs
 path = "src/uninstallBackground.rs"
 
+[[bin]]
+name = "gui" # Questo sarà il binario di default associato a gui.rs
+path = "src/gui.rs"
+
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
 rdev = "0.5.3"
