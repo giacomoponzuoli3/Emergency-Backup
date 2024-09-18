@@ -16,20 +16,6 @@ use crossbeam_channel::tick;
 
 // ESEMPIO BASE SCRITTURA FILE LOG OGNI 2 MINUTI
 // bisogna prendere l'utilizzo di CPU del processo
-pub fn log_with_tick() -> Result<(), Error> {
-
-    let mut file = File::create("example.txt")?;
-    let start = Instant::now();
-    let ticker  = tick(Duration::from_secs(1));
-    for i in 0..5 {
-        ticker.recv().unwrap();
-        println!("Tempo trascorso: {:?}", start.elapsed());
-
-        file.write_all(i.to_string().as_bytes()).unwrap()
-    }
-    Ok(())
-
-}
 
 
 fn main() {
@@ -84,7 +70,33 @@ fn main() {
 
     } else {
         println!("Il file 'output.csv' non esiste. Lancio la GUI");
-        // Avvia la GUI, gestisci eventuali errori
+        // Definisci il comando da eseguire
+
+        // Rileva il sistema operativo
+        let os = env::consts::OS;
+
+        // Definisci il comando da eseguire in base al sistema operativo
+        let command = match os {
+            "windows" => "release\\windows\\gui.exe", // Comando per Windows
+            "macos" => "release/macos/gui", // Comando per macOS
+            "linux" => "release/linux/gui", // Comando per Linux
+            _ => {
+                eprintln!("Sistema operativo non supportato.");
+                return;
+            }
+        };
+
+        // Esegui il comando
+        let status = Command::new(command)
+            .status()
+            .expect("Errore durante l'esecuzione del comando");
+
+        // Controlla se il comando è stato eseguito con successo
+        if status.success() {
+            println!("Il comando è stato eseguito con successo.");
+        } else {
+            eprintln!("Il comando ha restituito un errore.");
+        }
     }
 
 
