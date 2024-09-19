@@ -18,7 +18,7 @@ pub(crate) fn shape_recognizer(shape: &str, state: Arc<Mutex<MouseState>>, logic
             listen(move |event: Event| {
                 let mut state = state.lock().unwrap();
                 const TOLERANCE: f64 = 5.0;
-                const CIRCLE_TOLERANCE: f64 = 27.0;
+                const CIRCLE_TOLERANCE: f64 = 17.0;
 
                 match event.event_type {
                     EventType::MouseMove { x, y } => {
