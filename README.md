@@ -30,6 +30,6 @@ Le info che servono per la configurazione (da inserire in CLI o in GUI se si rie
 - Rendere dinamici i parametri delle funzioni per backup (forme e path)
 - Pop Up di conferma: dopo la prima conferma c’è un pop up che scompare dopo 10sec
 - Sistemare Usize / i32 nella funzione del log
-- Test eseguibili per le diverse architetture
+- Test eseguibili per le diverse architetture OK
 
 
