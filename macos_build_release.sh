@@ -1,30 +1,52 @@
 #!/bin/bash
 
-rm -rf "release/macos"
+# Rimuove le vecchie directory di rilascio per entrambe le architetture
+rm -rf "release/macos-intel"
+rm -rf "release/macos-arm"
 
-# Build the project with cargo in release mode for the entire workspace
-cargo build --release --workspace
+# Funzione per creare la directory e copiare gli eseguibili
+copy_executables() {
+    ARCH=$1
 
-# Create the release/macos directory if it does not exist
-if [ ! -d "release/macos" ]; then
-    mkdir -p release/macos
-fi
+    # Verifica se ARCH è uguale a aarch64-apple-darwin
+    if [ "$ARCH" == "aarch64-apple-darwin" ]; then
+        RELEASE_DIR="release/macos-arm"
+    else
+        RELEASE_DIR="release/macos-intel"
+    fi
 
-# Copy the executables to the release/macos directory
-if [ -f "target/release/Group-35" ]; then
-    cp target/release/Group-35 release/macos/Group-35
-fi
+    # Crea la directory se non esiste
+    if [ ! -d "$RELEASE_DIR" ]; then
+        mkdir -p "$RELEASE_DIR"
+    fi
 
-if [ -f "target/release/main" ]; then
-    cp target/release/main release/macos/main
-fi
+    # Copia gli eseguibili nella directory di rilascio specifica
+    if [ -f "target/$ARCH/release/Group-35" ]; then
+        cp "target/$ARCH/release/Group-35" "$RELEASE_DIR/Group-35"
+    fi
 
-if [ -f "target/release/gui" ]; then
-    cp target/release/gui release/macos/gui
-fi
+    if [ -f "target/$ARCH/release/main" ]; then
+        cp "target/$ARCH/release/main" "$RELEASE_DIR/main"
+    fi
 
-if [ -f "target/release/uninstall" ]; then
-    cp target/release/uninstall release/macos/uninstall
-fi
+    if [ -f "target/$ARCH/release/gui" ]; then
+        cp "target/$ARCH/release/gui" "$RELEASE_DIR/gui"
+    fi
 
-echo "Build and copy process completed successfully."
+    if [ -f "target/$ARCH/release/uninstall" ]; then
+        cp "target/$ARCH/release/uninstall" "$RELEASE_DIR/uninstall"
+    fi
+}
+
+# Compilazione per architettura Intel (x86_64)
+echo "Compilazione per Intel (x86_64)..."
+cargo build --release --target x86_64-apple-darwin
+copy_executables "x86_64-apple-darwin"
+
+# Compilazione per architettura ARM (Apple Silicon)
+echo "Compilazione per ARM (aarch64)..."
+cargo build --release --target aarch64-apple-darwin
+copy_executables "aarch64-apple-darwin"
+
+echo "Build e processo di copia completato con successo per entrambe le architetture."
+

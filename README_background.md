@@ -45,6 +45,11 @@ Il processo viene identificato in maniera univoca attraverso il suo PID, e il fi
   ``` 
   release\windows\Group35.exe
   ```
+  In caso di problemi lanciare singolarmente i vari comandi che permettono di eseguire i vari processi singolarmente:
+  - lanciare `release/windows/gui`
+  - lanciare `release/windows/uninstall`
+  - lanciare `release/windows/Group35`
+  
 - Per qualsiasi **modifica** al codice, disinstallare il programma ed eseguire lo script per ricostruire il progetto eseguendo il seguente comando
   ```
   windows_build_release.bat
@@ -59,22 +64,25 @@ Il processo viene identificato in maniera univoca attraverso il suo PID, e il fi
   release/windows/uninstall.exe
   ```
 Lo script `windows_build_release.bat` effettua i seguenti passaggi:
-1. Rimozione della cartella `release\windows`
-2. Compilazione del progetto
-3. Creazione della cartella `release\windows`
-4. Copia dell'eseguibile `Group35.exe`
-5. Messaggio finale
+1. **Rimozione della cartella** `release\windows`
+2. **Compilazione del progetto**
+3. **Creazione della cartella** `release\windows`
+4. **Copia dell'eseguibile** `Group35.exe`
+5. **Messaggio finale**
 
 ### MacOS
 - **Requisiti**: `osascript` dovrebbe essere installato di default dal Sistema Operativo, se non funziona, verificare l'installazione
-- **Esecuzione**: basta lanciare il seguente comando 
+- **Esecuzione**: basta lanciare il seguente comando, in base all'architettura dell'elaboratore (Intel o ARM)
   ```
-  release/macos/Group35
+  release/macos-arm/Group35
+  ```
+  ```
+  release/macos-intel/Group35
   ```
   In caso di problemi lanciare singolarmente i vari comandi che permettono di eseguire i vari processi singolarmente:
-    - elenco vari programmi (esempio quello della gui ecc)
-    - lanciare `release/macos/uninstall`
-    - lanciare `release/macos/Group35`
+    - lanciare `release/macos-arm/gui` o `release/macos-intel/gui`
+    - lanciare `release/macos-arm/uninstall` o `release/macos-intel/uninstall` 
+    - lanciare `release/macos-arm/Group35` o `release/macos-intel/Group35`
 - Per qualsiasi **modifica** del codice, disintallare il programma ed eseguire lo script per fare il rebuild del progetto 
   ```
   macos_build_release.sh
@@ -90,17 +98,21 @@ Lo script `windows_build_release.bat` effettua i seguenti passaggi:
   ```
 
 Lo script `macos_build_release.sh` effettua i seguenti passaggi:
-1. Pulisce la cartella `release/macos` per evitare conflitti con build precedenti
-2. Compila il progetto Rust in modalità release usando Cargo
-3. Crea una directory di destinazione (`release/macos`) e copia lì tutti gli eseguibili e gli asset necessari dalla cartella `target/release`
-4. Fornisce feedback all'utente al termine del processo
+1. **Cancella le vecchie directory di rilascio**: Le directory `release/macos-intel` e `release/macos-arm` vengono rimosse prima della nuova build
+2. **Compilazione per entrambe le architetture**: Usa cargo build con i target `x86_64-apple-darwin` (Intel) e `aarch64-apple-darwin` (ARM)
+3. **Copia gli eseguibili**: Gli eseguibili vengono copiati in cartelle separate (`release/macos-intel` e `release/macos-arm`) in base all'architettura 
+4. **Output strutturato**: Gli eseguibili sono separati in base all'architettura, consentendo di distinguere chiaramente quale eseguibile appartiene a quale architettura
 
 ### Linux
-- **Requisito**: eventuali requisiti
 - **Esecuzione**: eseguire il seguente comando 
   ```
   release/linux/Group35
   ```
+  In caso di problemi lanciare singolarmente i vari comandi che permettono di eseguire i vari processi singolarmente:
+  - lanciare `release/linux/gui`
+  - lanciare `release/linux/uninstall`
+  - lanciare `release/linux/Group35`
+  
 -  Per qualsiasi **modifica** del codice, disintallare il programma ed eseguire lo script per fare il rebuild del progetto
   ```
   linux_build_release.sh
@@ -117,8 +129,8 @@ Lo script `macos_build_release.sh` effettua i seguenti passaggi:
 
 Lo script `linux_build_release.sh` effettua i seguenti passaggi:
 
-1. Elimina la cartella di rilascio esistente (`release/linux`)
-2. Compila il progetto Rust in modalità ottimizzata (`release`)
-3. Crea una nuova cartella `release/linux` se non esiste
-4. Copia l'eseguibile generato (`Group35`) nella cartella di rilascio
-5. Stampa un messaggio per confermare il completamento del processo
+1. **Elimina la cartella** di rilascio esistente (`release/linux`)
+2. **Compila il progetto** Rust in modalità ottimizzata (`release`)
+3. **Crea una nuova cartella** `release/linux` se non esiste
+4. **Copia l'eseguibile** generato (`Group35`) nella cartella di rilascio
+5. **Stampa un messaggio** per confermare il completamento del processo
