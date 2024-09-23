@@ -72,6 +72,7 @@ fn main() {
       // TEORICAMENTE SE CARICO QUI LA CONFIGURAZIONE, A RUNTIME POSSO AGGIONRARE I PARAMETRI.
       // SE LA METTO PRIMA DEL LOOP, I PARAMETRI VENGONO CARICATI SOLO LA PRIMA VOLTA,
       // QUINDI PER RENDERE EFFETTIVE LE MODIFICHE PRESUMO CI VOGLIA UN RIAVVIO
+<<<<<<< Updated upstream
 /*
       let config_parameters = MyApp::load_from_csv("output.csv");
       match config_parameters{
@@ -79,6 +80,15 @@ fn main() {
          Err(err) => {println!("errore caricamento configurazione")}
       }
  */
+=======
+      /*
+            let config_parameters = MyApp::load_from_csv("output.csv");
+            match config_parameters{
+               Ok(app) => {},
+               Err(err) => {println!("errore caricamento configurazione")}
+            }
+       */
+>>>>>>> Stashed changes
 
 
       if enabled {
