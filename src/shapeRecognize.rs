@@ -18,7 +18,7 @@ pub(crate) fn shape_recognizer(shape: &str, state: Arc<Mutex<MouseState>>, logic
             listen(move |event: Event| {
                 let mut state = state.lock().unwrap();
                 const TOLERANCE: f64 = 5.0;
-                const CIRCLE_TOLERANCE: f64 = 17.0;
+                const CIRCLE_TOLERANCE: f64 = 20.0;
 
                 match event.event_type {
                     EventType::MouseMove { x, y } => {
@@ -53,7 +53,7 @@ pub(crate) fn shape_recognizer(shape: &str, state: Arc<Mutex<MouseState>>, logic
             //println!("{:?}", start_time.elapsed());
             // Verifica se è passato il tempo di timeout
         if !is_first_recognize {
-            if start_time.elapsed() > Duration::from_secs(4) {
+            if start_time.elapsed() > Duration::from_secs(10) {
                 return false; // Timeout scaduto
             }
         }
@@ -63,7 +63,7 @@ pub(crate) fn shape_recognizer(shape: &str, state: Arc<Mutex<MouseState>>, logic
             return true; // Riconoscimento riuscito
         }
 
-        //thread::sleep(Duration::from_millis(100)); // Pausa breve per evitare un loop di polling intensivo
+        thread::sleep(Duration::from_millis(100)); // Pausa breve per evitare un loop di polling intensivo
     }
 }
 

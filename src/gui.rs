@@ -45,7 +45,7 @@ pub enum Message {
 }
 
 impl MyApp {
-    fn load_from_csv(file_path: &str) -> Result<MyApp, Box<dyn Error>> {
+    pub fn load_from_csv(file_path: &str) -> Result<MyApp, Box<dyn Error>> {
         // Apre il file
         let file = File::open(file_path)?;
 

@@ -5,7 +5,7 @@ use std::{env, thread};
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
-use iced::{Sandbox, Settings};
+use iced::{Application, Sandbox, Settings};
 use winit::event_loop::EventLoop;
 use crate::beep::play_beep;
 use crate::gui::MyApp;
@@ -67,8 +67,22 @@ fn main() {
    let mut enabled= true;
 
    loop {
+
+      // carico i parametri dal file.
+      // TEORICAMENTE SE CARICO QUI LA CONFIGURAZIONE, A RUNTIME POSSO AGGIONRARE I PARAMETRI.
+      // SE LA METTO PRIMA DEL LOOP, I PARAMETRI VENGONO CARICATI SOLO LA PRIMA VOLTA,
+      // QUINDI PER RENDERE EFFETTIVE LE MODIFICHE PRESUMO CI VOGLIA UN RIAVVIO
+/*
+      let config_parameters = MyApp::load_from_csv("output.csv");
+      match config_parameters{
+         Ok(app) => {},
+         Err(err) => {println!("errore caricamento configurazione")}
+      }
+ */
+
+
       if enabled {
-         if shape_recognizer("cerchio", Arc::clone(&state), logical_width, logical_height, true) {
+         if shape_recognizer("rettangolo", Arc::clone(&state), logical_width, logical_height, true) {
             if !first_recognition_done {
                play_beep(Duration::from_millis(100)); // Bip corto
                first_recognition_done = true;
@@ -85,7 +99,7 @@ fn main() {
                println!("backup");
                enabled = false;
 
-               backup_execute( &"/Volumes/ESD-USB".to_string() , &PathBuf::from("/Users/marco/Desktop/dati_per_backup"), &vec!["pdf".to_string()] ).expect("errore");
+               backup_execute( &"/Volumes/ESD-USB".to_string() , "/Users/marco/Desktop/dati_per_backup", &vec!["pdf".to_string()] ).expect("errore");
                enabled = true;
                first_recognition_done = false; // Resetta il flag per riconoscere di nuovo
             } else {

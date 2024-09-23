@@ -17,7 +17,7 @@ fn list_external_drives() -> Vec<String> {
             }
         }
     }
-    println!("{:?}", drives);
+    //println!("{:?}", drives);
     drives
 }
 
@@ -57,47 +57,29 @@ fn should_copy_file(path: &Path, file_types: &[String]) -> bool {
     false
 }
 
-pub fn backup_execute(selected_drive: &String, src_dir: &Path, file_types: &[String]) -> io::Result<()> {
+pub fn backup_execute(selected_drive: &String, src_dir: &str, file_types: &[String]) -> io::Result<()> {
 
-    // --- TUTTA QUESTA LOGICA VA SPOSTATA NELLA FINESTRA DI CONFIGURAZIONE
-    /*
-        let src_dir = std::env::current_dir()?;
+
+       // let src_dir = std::env::current_dir()?;
+
         let drives = list_external_drives();
-
-        if drives.is_empty() {
-            eprintln!("Non ci sono drive esterni collegati.");
+        //println!("{:?}", &src_dir);
+        if !drives.contains(selected_drive) {
+            println!("il drive indicato non è corretto. aggiorna la configurazione");
             return Ok(());
         }
 
-        println!("Drives disponibili:");
-        for (i, drive) in drives.iter().enumerate() {
-            println!("{}: {}", i, drive);
-        }
+        let backup_dir = Path::new(selected_drive).join("backup");
 
-        println!("Seleziona il drive su cui eseguire il backup (per indice):");
-        let mut index = String::new();
-        std::io::stdin().read_line(&mut index)?;
-        let index: usize = index.trim().parse().expect("indice non valido");
+        fs::create_dir_all(&backup_dir)?;
 
-        if index >= drives.len() {
-            eprintln!("indice non valido.");
-            return Ok(());
-        }
+        let (total_bytes, duration) = copy_directory(&PathBuf::from(src_dir), &backup_dir, file_types)?;
 
-        let selected_drive = &drives[index];
-    */
-    //--FINE-----
+        let mut report_file = File::create(backup_dir.join("backup_report.txt"))?;
+        writeln!(report_file, "Backup completed in: {:?}", duration)?;
+        writeln!(report_file, "Total bytes copied: {}", total_bytes)?;
 
-    let backup_dir = Path::new(selected_drive).join("backup");
+        println!("Backup completato correttamente.");
+        Ok(())
 
-    fs::create_dir_all(&backup_dir)?;
-
-    let (total_bytes, duration) = copy_directory(&src_dir, &backup_dir, file_types)?;
-
-    let mut report_file = File::create(backup_dir.join("backup_report.txt"))?;
-    writeln!(report_file, "Backup completed in: {:?}", duration)?;
-    writeln!(report_file, "Total bytes copied: {}", total_bytes)?;
-
-    println!("Backup completato correttamente.");
-    Ok(())
 }
