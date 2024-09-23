@@ -23,6 +23,13 @@ pub fn log_with_tick(log_dir: &Path, pid: i32) -> io::Result<()> {
     //ottengo il numero di CPU logiche (core)
     let num_core = system.cpus().len();
 
+    // Conversione del pid a seconda del sistema operativo
+    #[cfg(target_os = "windows")]
+    let pid = Pid::from(pid as usize);
+
+    #[cfg(not(target_os = "windows"))]
+    let pid = Pid::from(pid);
+
     loop {
         // Aspetta che il ticker riceva un segnale
         ticker.recv().unwrap();
