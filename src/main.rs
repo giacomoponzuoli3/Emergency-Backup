@@ -2,13 +2,16 @@ use crate::backup::backup_execute;
 use rdev::{listen, EventType, Event};
 use std::sync::{Arc, Mutex, mpsc};
 use std::{env, thread};
+use std::any::Any;
 use std::collections::VecDeque;
+use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
+use csv::Writer;
 use iced::{Application, Sandbox, Settings};
 use winit::event_loop::EventLoop;
 use crate::beep::play_beep;
-use crate::gui::MyApp;
+use crate::gui::{Bootstrap, MyApp, Segno};
 use crate::log::log_with_tick;
 use crate::shapeRecognize::shape_recognizer;
 
@@ -19,7 +22,7 @@ mod mainBackground;
 mod uninstallBackground;
 mod beep;
 mod gui;
-
+mod countdownGui;
 
 struct MouseState {
    sides: [bool; 4], // [top, bottom, left, right]
@@ -29,6 +32,17 @@ struct MouseState {
 
 
 fn main() {
+   /*
+   //PRELEVARE I VALORI DAL FILE
+   let value = MyApp::get_value();
+   //FARE UN CONTROLLO PER VERIFICARE SE ESISTE IL FILE, SE NON ESISTE CREARLO CON IL CODICE SEGUENTE
+   let file = File::create("output.csv").expect("Non posso creare il file CSV");
+   let mut wtr = Writer::from_writer(file);
+   wtr.serialize(value).expect("Non posso scrivere i dati nel file CSV");
+   wtr.flush().expect("Non posso salvare i dati nel file");
+   */
+
+
    // Get the current directory as a PathBuf
    let path = env::current_dir().unwrap();
 
@@ -40,9 +54,9 @@ fn main() {
    let pid = std::process::id(); // Usa l'ID del processo corrente per testare
 
    // Avvia il processo di monitoraggio della CPU in maniera parallela rispetto alla funzionalità di backup
-   thread::spawn(move||{
+   /*thread::spawn(move||{
       log_with_tick(log_dir.as_path(), pid as i32).unwrap();
-   });
+   });*/
 
 
    let state = Arc::new(Mutex::new(MouseState {

@@ -10,12 +10,20 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct MyApp {
-    radio_bootstrap: Option<Bootstrap>,
     text_cartella_sorgente: String,
     text_drive_destinazione: String,
     text_directory_log: String,
     radio_segno_avvio: Option<Segno>,
     radio_segno_conferma: Option<Segno>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct OutputValue{
+    pub text_cartella_sorgente: String,
+    pub text_drive_destinazione: String,
+    pub text_directory_log: String,
+    pub radio_segno_avvio: Option<Segno>,
+    pub radio_segno_conferma: Option<Segno>
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -39,7 +47,6 @@ pub enum Message {
     ButtonDriveDestinazione,
     ButtonDirectoryLog,
     ButtonSalva,
-    BootstrapSelected(Bootstrap),
     SegnoSelectedAvvio(Segno),
     SegnoSelectedConferma(Segno)
 }
@@ -57,12 +64,31 @@ impl MyApp {
 
         Ok(app)
     }
+
+    pub fn get_value() -> OutputValue {
+        if let Some(app) = MyApp::load_from_csv("output.csv").ok() {
+            return OutputValue{
+                text_cartella_sorgente: app.text_cartella_sorgente,
+                text_drive_destinazione: app.text_drive_destinazione,
+                text_directory_log: app.text_directory_log,
+                radio_segno_avvio: app.radio_segno_avvio,
+                radio_segno_conferma: app.radio_segno_conferma
+            };
+        }
+
+        OutputValue{
+            text_cartella_sorgente: Self::default().text_cartella_sorgente,
+            text_drive_destinazione: Self::default().text_drive_destinazione,
+            text_directory_log: Self::default().text_directory_log,
+            radio_segno_avvio: Self::default().radio_segno_avvio,
+            radio_segno_conferma: Self::default().radio_segno_conferma
+        }
+    }
 }
 
 impl Default for MyApp{
     fn default() -> Self {
         MyApp{
-            radio_bootstrap : Some(Bootstrap::Negativo),
             text_cartella_sorgente : dirs::desktop_dir()
                 .map(|path| path.to_string_lossy().to_string())
                 .unwrap_or_else(|| "".to_string()),
@@ -119,9 +145,6 @@ impl Sandbox for MyApp {
                     self.text_directory_log = path.display().to_string();
                 }
             }
-            Message::BootstrapSelected(bootstrap) => {
-                self.radio_bootstrap = Some(bootstrap);
-            }
             Message::SegnoSelectedAvvio(Segno) => {
                 self.radio_segno_avvio = Some(Segno);
             }
@@ -131,7 +154,7 @@ impl Sandbox for MyApp {
             Message::ButtonSalva =>{
                 //validazioni
                 let mut flag = 0;
-                if self.radio_bootstrap.is_none() || self.text_cartella_sorgente.is_empty() || self.text_drive_destinazione.is_empty()
+                if self.text_cartella_sorgente.is_empty() || self.text_drive_destinazione.is_empty()
                    || self.text_directory_log.is_empty()  || self.radio_segno_conferma.is_none() || self.radio_segno_avvio.is_none(){
                     MessageDialog::new()
                         .set_title("Errore")
@@ -194,77 +217,70 @@ impl Sandbox for MyApp {
     }
 
     fn view(&self) -> Element<Message> {
-        let inputCartellaSorgente = text_input("Enter something...", &self.text_cartella_sorgente)
+        let input_cartella_sorgente = text_input("Enter something...", &self.text_cartella_sorgente)
             .on_input(Message::InputCartellaSorgente);
 
-        let btnCartellaSorgente = button("Seleziona").on_press(Message::ButtonCartellaSorgente);
+        let btn_cartella_sorgente = button("Seleziona").on_press(Message::ButtonCartellaSorgente);
 
-        let inputDriveDestinazione = text_input("Enter something...", &self.text_drive_destinazione)
+        let input_drive_destinazione = text_input("Enter something...", &self.text_drive_destinazione)
             .on_input(Message::InputDriveDestinazione);
 
-        let btnDriveDestinazione = button("Seleziona").on_press(Message::ButtonDriveDestinazione);
+        let btn_drive_destinazione = button("Seleziona").on_press(Message::ButtonDriveDestinazione);
 
-        let inputDirectoryLog = text_input("Enter directory...", &self.text_directory_log)
+        let input_directory_log = text_input("Enter directory...", &self.text_directory_log)
             .on_input(Message::InputDirectoryLog);
 
-        let btnDirectoryLog = button("Seleziona").on_press(Message::ButtonDirectoryLog);
+        let btn_directory_log = button("Seleziona").on_press(Message::ButtonDirectoryLog);
 
-        let btnSalva = button("Salva").on_press(Message::ButtonSalva);
+        let btn_salva = button("Salva").on_press(Message::ButtonSalva);
 
-        let radioBootstrap = row![
-            radio("Si", Bootstrap::Positivo, self.radio_bootstrap, Message::BootstrapSelected),
-            radio("No", Bootstrap::Negativo, self.radio_bootstrap, Message::BootstrapSelected)
-        ]
-            .spacing(20);
 
-        let radioSegnoAvvio = row![
+        let radio_segno_avvio = row![
             radio("Rettangolo", Segno::Rettangolo, self.radio_segno_avvio, Message::SegnoSelectedAvvio),
             radio("Cerchio", Segno::Cerchio, self.radio_segno_avvio, Message::SegnoSelectedAvvio)
         ]
             .spacing(20);
 
-        let radioSegnoConferma = row![
+        let radio_segno_conferma = row![
             radio("Rettangolo", Segno::Rettangolo, self.radio_segno_conferma, Message::SegnoSelectedConferma),
             radio("Cerchio", Segno::Cerchio, self.radio_segno_conferma, Message::SegnoSelectedConferma)
         ]
             .spacing(20);
 
         let riga1 = row![
-            inputCartellaSorgente
+            input_cartella_sorgente
                 .width(500),
-            btnCartellaSorgente
+            btn_cartella_sorgente
         ]
             .spacing(20);
 
         let riga2 = row![
-            inputDriveDestinazione
+            input_drive_destinazione
                 .width(500),
-            btnDriveDestinazione
+            btn_drive_destinazione
         ]
             .spacing(20);
 
         let riga3 = row![
-            inputDirectoryLog
+            input_directory_log
                 .width(500),
-            btnDirectoryLog
+            btn_directory_log
         ]
             .spacing(20);
 
         let content = column![
             text("IMPOSTAZIONI BACKUP").size(30),
-            text("Avvio del tool in fase di bootstrap:"),
-            radioBootstrap,
             text("Seleziona una cartella sorgente"),
             riga1,
             text("Seleziona il drive di destinazione"),
             riga2,
             text("Scegliere il segno per avviare il backup"),
-            radioSegnoAvvio,
+            radio_segno_avvio,
             text("Scegliere il segno per confermare il backup"),
-            radioSegnoConferma,
+            radio_segno_conferma,
             text("Selezionare la cartella dove salvare il log di sistema"),
             riga3,
-            btnSalva
+            btn_salva
         ]
             .padding(20)
             .spacing(20)
