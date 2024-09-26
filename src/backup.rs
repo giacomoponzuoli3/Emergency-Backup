@@ -4,6 +4,7 @@ use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 use sysinfo::{DiskExt, System, SystemExt};
 use walkdir::WalkDir;
+use crate::beep::play_beep;
 
 fn list_external_drives() -> Vec<String> {
     let mut system = System::new_all();
@@ -66,6 +67,7 @@ pub fn backup_execute(selected_drive: &String, src_dir: &str, file_types: &[Stri
         //println!("{:?}", &src_dir);
         if !drives.contains(selected_drive) {
             println!("il drive indicato non è corretto. aggiorna la configurazione");
+            play_beep(Duration::from_millis(750), 220.0); // Bip lungo
             return Ok(());
         }
 
@@ -80,6 +82,7 @@ pub fn backup_execute(selected_drive: &String, src_dir: &str, file_types: &[Stri
         writeln!(report_file, "Total bytes copied: {}", total_bytes)?;
 
         println!("Backup completato correttamente.");
+        play_beep(Duration::from_millis(500), 880.0); // Bip lungo success
         Ok(())
 
 }

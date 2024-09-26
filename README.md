@@ -25,11 +25,12 @@ Le info che servono per la configurazione (da inserire in CLI o in GUI se si rie
 - Directory dove salvare il log di sistema
 
 ## COSA RIMANE DA FARE:
-- Check: se il drive esterno non è più presente, annulla il backup sennò va in panic
+- Check: se il drive esterno non è più presente, annulla il backup sennò va in panic OK
 - Gestire la X o il tasto chiudi per inserire i valori di default nella CSV
-- Rendere dinamici i parametri delle funzioni per backup (forme e path)
+- Rendere dinamici i parametri delle funzioni per backup (forme e path) OK, CHECK LOG
 - Pop Up di conferma: dopo la prima conferma c’è un pop up che scompare dopo 10sec
 - Sistemare Usize / i32 nella funzione del log
 - Test eseguibili per le diverse architetture OK
+- Rimuovere "Boostrap" dalla GUI e inserire una lista di filtri di file (es. all, pdf, mp4..)
 
 

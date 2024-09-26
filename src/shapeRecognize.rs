@@ -4,9 +4,14 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::collections::VecDeque;
 use std::time::{Duration, Instant};
+use crate::gui::Segno;
 
-pub(crate) fn shape_recognizer(shape: &str, state: Arc<Mutex<MouseState>>, logical_width: f64, logical_height: f64, is_first_recognize:bool) -> bool {
-    let shape_to_recognize = shape.to_lowercase();
+pub(crate) fn shape_recognizer(shape: &Segno, state: Arc<Mutex<MouseState>>, logical_width: f64, logical_height: f64, is_first_recognize:bool) -> bool {
+    let mut shape_to_recognize;
+    match shape{
+        Segno::Rettangolo => { shape_to_recognize = "rettangolo" }
+        Segno::Cerchio => { shape_to_recognize = "cerchio" }
+    }
     let result = Arc::new(Mutex::new(false));
     let start_time = Instant::now(); // Tempo di avvio
 
@@ -18,7 +23,7 @@ pub(crate) fn shape_recognizer(shape: &str, state: Arc<Mutex<MouseState>>, logic
             listen(move |event: Event| {
                 let mut state = state.lock().unwrap();
                 const TOLERANCE: f64 = 5.0;
-                const CIRCLE_TOLERANCE: f64 = 20.0;
+                const CIRCLE_TOLERANCE: f64 = 23.0;
 
                 match event.event_type {
                     EventType::MouseMove { x, y } => {
@@ -31,7 +36,7 @@ pub(crate) fn shape_recognizer(shape: &str, state: Arc<Mutex<MouseState>>, logic
                         }
 
                         if state.points.len() > 5 {
-                            match shape_to_recognize.as_str() {
+                            match shape_to_recognize {
                                 "cerchio" => {
                                     if check_circle(&mut state.points, CIRCLE_TOLERANCE).is_some() {
                                         *result_clone.lock().unwrap() = true;
