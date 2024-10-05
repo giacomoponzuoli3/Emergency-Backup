@@ -1,19 +1,16 @@
 use crate::backup::backup_execute;
-use rdev::{listen, EventType, Event};
 use std::sync::{Arc, Mutex, mpsc};
-use std::{env, thread};
+use std::{thread};
 use std::any::Any;
 use std::collections::VecDeque;
-use std::fs::File;
-use std::path::{Path, PathBuf};
-use std::time::{Duration, Instant};
-use csv::Writer;
-use iced::{Application, Sandbox, Settings};
+use std::time::{Duration};
+use iced::{Application, Sandbox};
 use winit::event_loop::EventLoop;
 use crate::beep::play_beep;
-use crate::gui::{Bootstrap, MyApp, Segno};
-use crate::log::log_with_tick;
+use crate::gui::{ MyApp };
 use crate::shapeRecognize::shape_recognizer;
+mod model;
+use model::MouseState::MouseState;
 
 mod shapeRecognize;
 mod backup;
@@ -23,12 +20,6 @@ mod uninstallBackground;
 mod beep;
 mod gui;
 mod countdownGui;
-
-struct MouseState {
-   sides: [bool; 4], // [top, bottom, left, right]
-   points: VecDeque<(f64, f64)>, // Punti del mouse per cerchio, rettangolo e segno -
-   recognized_shape: Option<String>, // Forma riconosciuta
-}
 
 
 fn main() {
@@ -81,7 +72,7 @@ fn main() {
                first_recognition_done = true;
             }
 
-            println!("Recognition done!");
+            println!("primo segno riconosciuto ");
             // ---- QUI DEVE USCIRE UNA FINESTRA PER LA CONFERMA CON UN TIMER: SE ANNULLO NON SUCCEDE NIENTE
             // ALTRIMENTI CONFERMO CON IL SECONDO SEGNO.
             // LEGGENDO LA TRACCIA NON MI è CHIARO DOVE DOVREBBE USCIRE, SE QUA OPPURE DOPO AVER RICONOSCIUTO ANCHE IL SECONDO SEGNO
@@ -89,20 +80,20 @@ fn main() {
             if shape_recognizer(&value.radio_segno_conferma.unwrap(), Arc::clone(&state), logical_width, logical_height, false) {
 
                play_beep(Duration::from_millis(500), 440.0); // Bip lungo
-               println!("backup");
+               println!("secondo segno riconosciuto");
                enabled = false;
 
-               backup_execute( &value.text_drive_destinazione , &value.text_cartella_sorgente, &vec!["all".to_string()] ).expect("errore");
+               backup_execute( &value.text_drive_destinazione , &value.text_cartella_sorgente, &vec!["all".to_string()] ).expect("errore nel backup");
                enabled = true;
                first_recognition_done = false; // Resetta il flag per riconoscere di nuovo
             } else {
-               println!("scaduto");
+               println!("timer scaduto, ripartire dal primo segno");
                play_beep(Duration::from_millis(500), 220.0); // Bip errore
                first_recognition_done = false;
             }
          }
       }else {
-         println!("no")
+         println!("riconoscimento non attivo, azione in corso")
       }
    }
 }

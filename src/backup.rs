@@ -66,7 +66,7 @@ pub fn backup_execute(selected_drive: &String, src_dir: &str, file_types: &[Stri
         let drives = list_external_drives();
         //println!("{:?}", &src_dir);
         if !drives.contains(selected_drive) {
-            println!("il drive indicato non è corretto. aggiorna la configurazione");
+            println!("il drive indicato non è corretto. Aggiornare la configurazione");
             play_beep(Duration::from_millis(750), 220.0); // Bip lungo
             return Ok(());
         }

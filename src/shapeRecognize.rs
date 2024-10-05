@@ -29,22 +29,24 @@ pub(crate) fn shape_recognizer(shape: &Segno, state: Arc<Mutex<MouseState>>, log
                     EventType::MouseMove { x, y } => {
                         state.points.push_back((x, y));
 
-                        if shape_to_recognize == "rettangolo" {
-                            if check_edges(&mut state, x, y, logical_width, logical_height, TOLERANCE).is_some() {
-                                *result_clone.lock().unwrap() = true;
-                            }
-                        }
 
-                        if state.points.len() > 5 {
                             match shape_to_recognize {
                                 "cerchio" => {
-                                    if check_circle(&mut state.points, CIRCLE_TOLERANCE).is_some() {
+                                    if state.points.len() > 5 {
+                                        if check_circle(&mut state.points, CIRCLE_TOLERANCE).is_some() {
+                                            *result_clone.lock().unwrap() = true;
+                                        }
+                                    }
+
+                                },
+                                "rettangolo" => {
+                                    if check_edges(&mut state, x, y, logical_width, logical_height, TOLERANCE).is_some() {
                                         *result_clone.lock().unwrap() = true;
                                     }
-                                }
+                                },
                                 _ => {}
                             }
-                        }
+
                     }
                     _ => {}
                 }
