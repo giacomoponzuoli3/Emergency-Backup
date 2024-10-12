@@ -20,7 +20,7 @@ pub(crate) fn shape_recognizer(shape: Arc<Segno>, state: Arc<Mutex<MouseState>>,
             listen(move |event: Event| {
                 let mut state = state.lock().unwrap();
                 const TOLERANCE: f64 = 5.0;
-                const CIRCLE_TOLERANCE: f64 = 23.0;
+                const CIRCLE_TOLERANCE: f64 = 40.0;
 
                 match event.event_type {
                     EventType::MouseMove { x, y } => {
@@ -30,6 +30,7 @@ pub(crate) fn shape_recognizer(shape: Arc<Segno>, state: Arc<Mutex<MouseState>>,
                             match shape_ref.as_ref() {
                                 Segno::Cerchio => {
                                     if state.points.len() > 5 {
+                                        //thread::sleep(Duration::from_millis(500));
                                         if check_circle(&mut state.points, CIRCLE_TOLERANCE).is_some() {
                                             *result_clone.lock().unwrap() = true;
                                         }
@@ -108,3 +109,50 @@ fn check_circle(points: &mut VecDeque<(f64, f64)>, tolerance: f64) -> Option<()>
     }
     None
 }
+
+
+
+/*
+fn check_circle(points: &mut VecDeque<(f64, f64)>, tolerance: f64) -> Option<()> {
+    if points.len() < 5 {
+        return None;
+    }
+
+    // 1. Calcolare il centro approssimativo (media delle coordinate)
+    let (mut sum_x, mut sum_y) = (0.0, 0.0);
+    for &(x, y) in points.iter() {
+        sum_x += x;
+        sum_y += y;
+    }
+    let num_points = points.len() as f64;
+    let center_x = sum_x / num_points;
+    let center_y = sum_y / num_points;
+
+    // 2. Calcolare il raggio medio e determinare il range accettabile
+    let mut min_radius = f64::MAX;
+    let mut max_radius = f64::MIN;
+
+    for &(x, y) in points.iter() {
+        let distance = ((x - center_x).powi(2) + (y - center_y).powi(2)).sqrt();
+        min_radius = min_radius.min(distance);
+        max_radius = max_radius.max(distance);
+    }
+
+    // 3. Verificare che il raggio rientri nel range accettabile
+    if (max_radius - min_radius) <= tolerance {
+        // 4. Verificare che il primo e l'ultimo punto siano vicini (chiusura del cerchio)
+        if let (Some(first_point), Some(last_point)) = (points.front(), points.back()) {
+            let closure_distance = ((last_point.0 - first_point.0).powi(2) + (last_point.1 - first_point.1).powi(2)).sqrt();
+
+            if closure_distance <= tolerance {
+                points.clear();
+                return Some(());
+            }
+        } else {
+            return None; // Se non riesci a ottenere i punti front e back
+        }
+    }
+    points.clear();
+    None
+}
+*/
