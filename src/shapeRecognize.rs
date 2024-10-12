@@ -6,12 +6,9 @@ use std::collections::VecDeque;
 use std::time::{Duration, Instant};
 use crate::gui::Segno;
 
-pub(crate) fn shape_recognizer(shape: &Segno, state: Arc<Mutex<MouseState>>, logical_width: f64, logical_height: f64, is_first_recognize:bool) -> bool {
-    let mut shape_to_recognize;
-    match shape{
-        Segno::Rettangolo => { shape_to_recognize = "rettangolo" }
-        Segno::Cerchio => { shape_to_recognize = "cerchio" }
-    }
+pub(crate) fn shape_recognizer(shape: Arc<Segno>, state: Arc<Mutex<MouseState>>, logical_width: f64, logical_height: f64, is_first_recognize:bool) -> bool {
+    let shape_ref = Arc::clone(&shape);
+
     let result = Arc::new(Mutex::new(false));
     let start_time = Instant::now(); // Tempo di avvio
 
@@ -30,8 +27,8 @@ pub(crate) fn shape_recognizer(shape: &Segno, state: Arc<Mutex<MouseState>>, log
                         state.points.push_back((x, y));
 
 
-                            match shape_to_recognize {
-                                "cerchio" => {
+                            match shape_ref.as_ref() {
+                                Segno::Cerchio => {
                                     if state.points.len() > 5 {
                                         if check_circle(&mut state.points, CIRCLE_TOLERANCE).is_some() {
                                             *result_clone.lock().unwrap() = true;
@@ -39,7 +36,7 @@ pub(crate) fn shape_recognizer(shape: &Segno, state: Arc<Mutex<MouseState>>, log
                                     }
 
                                 },
-                                "rettangolo" => {
+                                Segno::Rettangolo => {
                                     if check_edges(&mut state, x, y, logical_width, logical_height, TOLERANCE).is_some() {
                                         *result_clone.lock().unwrap() = true;
                                     }

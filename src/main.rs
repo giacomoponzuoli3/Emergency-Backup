@@ -66,7 +66,7 @@ fn main() {
    loop {
 
       if enabled {
-         if shape_recognizer(&value.radio_segno_avvio.unwrap(), Arc::clone(&state), logical_width, logical_height, true) {
+         if shape_recognizer(Arc::new(value.radio_segno_avvio.unwrap().clone()), Arc::clone(&state), logical_width, logical_height, true) {
             if !first_recognition_done {
                play_beep(Duration::from_millis(100), 440.0); // Bip corto
                first_recognition_done = true;
@@ -77,7 +77,7 @@ fn main() {
             // ALTRIMENTI CONFERMO CON IL SECONDO SEGNO.
             // LEGGENDO LA TRACCIA NON MI è CHIARO DOVE DOVREBBE USCIRE, SE QUA OPPURE DOPO AVER RICONOSCIUTO ANCHE IL SECONDO SEGNO
 
-            if shape_recognizer(&value.radio_segno_conferma.unwrap(), Arc::clone(&state), logical_width, logical_height, false) {
+            if shape_recognizer(Arc::new(value.radio_segno_conferma.unwrap()), Arc::clone(&state), logical_width, logical_height, false) {
 
                play_beep(Duration::from_millis(500), 440.0); // Bip lungo
                println!("secondo segno riconosciuto");
