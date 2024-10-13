@@ -43,8 +43,7 @@ fn main() {
 
    let state = Arc::new(Mutex::new(MouseState {
       sides: [false; 4],
-      points: VecDeque::new(),
-      recognized_shape: None,
+      points: VecDeque::new()
    }));
 
    // Crea un event loop per ottenere la dimensione dello schermo
@@ -76,6 +75,7 @@ fn main() {
             // ---- QUI DEVE USCIRE UNA FINESTRA PER LA CONFERMA CON UN TIMER: SE ANNULLO NON SUCCEDE NIENTE
             // ALTRIMENTI CONFERMO CON IL SECONDO SEGNO.
             // LEGGENDO LA TRACCIA NON MI è CHIARO DOVE DOVREBBE USCIRE, SE QUA OPPURE DOPO AVER RICONOSCIUTO ANCHE IL SECONDO SEGNO
+            thread::sleep(Duration::from_millis(250));
 
             if shape_recognizer(Arc::new(value.radio_segno_conferma.unwrap()), Arc::clone(&state), logical_width, logical_height, false) {
 
