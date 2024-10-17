@@ -22,6 +22,7 @@ pub(crate) fn shape_recognizer(shape: Arc<Segno>, state: Arc<Mutex<MouseState>>,
                 let mut state = state_clone.lock().unwrap();
                 const TOLERANCE: f64 = 5.0;
                 const CIRCLE_TOLERANCE: f64 = 65.0;
+                const LINE_TOLERANCE: f64 = 35.0;
 
                 match event.event_type {
                     EventType::MouseMove { x, y } => {
@@ -42,7 +43,14 @@ pub(crate) fn shape_recognizer(shape: Arc<Segno>, state: Arc<Mutex<MouseState>>,
                                     *result_clone.lock().unwrap() = true;
                                 }
                             },
-                            _ => {}
+                            Segno::Meno => {
+                                if state.points.len() > 2 {
+
+                                    if check_horizontal_line(&mut state.points, LINE_TOLERANCE).is_some() {
+                                        *result_clone.lock().unwrap() = true;
+                                    }
+                                }
+                            }
                         }
                     }
                     _ => {}
@@ -159,7 +167,7 @@ fn check_circle(points: &mut VecDeque<(f64, f64)>, tolerance: f64) -> Option<()>
     for &(x, y) in points.iter() {
         let distance = ((x - center_x).powi(2) + (y - center_y).powi(2)).sqrt();
         if (distance - radius).abs() > relative_tolerance {
-            println!("dist {:?} raggio {:?} diff {:?} relat {:?}", distance, radius, (distance - radius).abs(), relative_tolerance);
+            //println!("dist {:?} raggio {:?} diff {:?} relat {:?}", distance, radius, (distance - radius).abs(), relative_tolerance);
             points.clear();
             return None;
         }
@@ -168,3 +176,25 @@ fn check_circle(points: &mut VecDeque<(f64, f64)>, tolerance: f64) -> Option<()>
     points.clear(); // Se il cerchio è riconosciuto, puliamo i punti
     Some(())
 }
+
+fn check_horizontal_line(points: &mut VecDeque<(f64, f64)>, tolerance: f64) -> Option<()> {
+    const MIN_LINE_LENGTH: f64 = 150.0; // Lunghezza minima della linea
+
+    if points.len() < 2 {
+        return None; // Non ci sono abbastanza punti per verificare una linea
+    }
+
+    let (x_start, y_start) = points.front()?;
+    let (x_end, y_end) = points.back()?;
+
+    // Verifica se la differenza in altezza (y) è entro la tolleranza
+    if (y_end - y_start).abs() <= tolerance {
+        // Verifica che la lunghezza della linea sia almeno il valore minimo
+        if (x_end - x_start).abs() >= MIN_LINE_LENGTH {
+            return Some(()); // La linea è orizzontale e sufficientemente lunga
+        }
+    }
+    points.clear();
+    None // La differenza supera la tolleranza o la linea non è abbastanza lunga
+}
+

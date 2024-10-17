@@ -35,7 +35,8 @@ pub enum Bootstrap{
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Segno{
     Rettangolo,
-    Cerchio
+    Cerchio,
+    Meno
 }
 
 #[derive(Debug, Clone)]
