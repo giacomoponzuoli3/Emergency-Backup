@@ -14,6 +14,8 @@ pub fn log_with_tick(log_dir: &Path, pid: i32) -> io::Result<()> {
         .append(true)
         .open(&log_file_path)?;
 
+    println!("{:?}, {:?}", log_dir, pid );
+
     // Crea un ticker che scatta ogni 120 secondi
     let ticker = start_ticker(Duration::from_secs(5));
 
@@ -33,6 +35,7 @@ pub fn log_with_tick(log_dir: &Path, pid: i32) -> io::Result<()> {
     loop {
         // Aspetta che il ticker riceva un segnale
         ticker.recv().unwrap();
+        println!("A");
 
         // Aggiorna le informazioni del sistema
         system.refresh_processes();

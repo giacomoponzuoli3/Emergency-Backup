@@ -2,11 +2,13 @@ use std::error::Error;
 use std::fs::File;
 use std::path::Path;
 use csv::{Reader, Writer};
-use iced::widget::{button, column, radio, row, text, text_input, };
+use iced::widget::{button, checkbox, column, radio, row, text, text_input};
 use iced::{Alignment, Element, Sandbox, Settings};
+use iced::theme::Checkbox;
 use rfd::FileDialog;
 use rfd::MessageDialog;
 use serde::{Deserialize, Serialize};
+
 
 #[derive(Serialize, Deserialize)]
 pub struct MyApp {
@@ -15,6 +17,10 @@ pub struct MyApp {
     text_directory_log: String,
     radio_segno_avvio: Option<Segno>,
     radio_segno_conferma: Option<Segno>,
+    check_img: bool,
+    check_video: bool,
+    check_music: bool,
+    check_doc: bool
 }
 
 #[derive(Serialize, Deserialize)]
@@ -23,7 +29,11 @@ pub struct OutputValue{
     pub text_drive_destinazione: String,
     pub text_directory_log: String,
     pub radio_segno_avvio: Option<Segno>,
-    pub radio_segno_conferma: Option<Segno>
+    pub radio_segno_conferma: Option<Segno>,
+    pub check_img: bool,
+    pub check_video: bool,
+    pub check_music: bool,
+    pub check_doc: bool
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
@@ -49,7 +59,11 @@ pub enum Message {
     ButtonDirectoryLog,
     ButtonSalva,
     SegnoSelectedAvvio(Segno),
-    SegnoSelectedConferma(Segno)
+    SegnoSelectedConferma(Segno),
+    CheckboxImg,
+    CheckboxVideo,
+    CheckboxMusic,
+    CheckboxDoc,
 }
 
 impl MyApp {
@@ -73,17 +87,31 @@ impl MyApp {
                 text_drive_destinazione: app.text_drive_destinazione,
                 text_directory_log: app.text_directory_log,
                 radio_segno_avvio: app.radio_segno_avvio,
-                radio_segno_conferma: app.radio_segno_conferma
+                radio_segno_conferma: app.radio_segno_conferma,
+                check_img: app.check_img,
+                check_doc:app.check_doc,
+                check_music: app.check_music,
+                check_video: app.check_video,
             };
         }
 
-        OutputValue{
+        let file = File::create("output.csv").expect("Non posso creare il file CSV");
+        let mut wtr = Writer::from_writer(file);
+
+       let def = OutputValue{
             text_cartella_sorgente: Self::default().text_cartella_sorgente,
             text_drive_destinazione: Self::default().text_drive_destinazione,
             text_directory_log: Self::default().text_directory_log,
             radio_segno_avvio: Self::default().radio_segno_avvio,
-            radio_segno_conferma: Self::default().radio_segno_conferma
-        }
+            radio_segno_conferma: Self::default().radio_segno_conferma,
+            check_video: Self::default().check_video,
+            check_img: Self::default().check_img,
+            check_doc: Self::default().check_doc,
+            check_music: Self::default().check_music
+        };
+        wtr.serialize(&def).expect("Non posso scrivere i dati nel CSV");
+        wtr.flush().expect("Non posso salvare i dati nel CSV");
+        def
     }
 }
 
@@ -100,7 +128,11 @@ impl Default for MyApp{
                 .map(|path| path.to_string_lossy().to_string())
                 .unwrap_or_else(|| "".to_string()),
             radio_segno_avvio: Some(Segno::Rettangolo),
-            radio_segno_conferma: Some(Segno::Cerchio),
+            radio_segno_conferma: Some(Segno::Rettangolo),
+            check_music: false,
+            check_doc: false,
+            check_img:false,
+            check_video:false
         }
     }
 }
@@ -152,6 +184,19 @@ impl Sandbox for MyApp {
             Message::SegnoSelectedConferma(Segno) => {
                 self.radio_segno_conferma = Some(Segno);
             }
+            Message::CheckboxVideo =>{
+                self.check_video = !self.check_video
+            }
+            Message::CheckboxDoc =>{
+                self.check_doc = !self.check_doc
+            }
+            Message::CheckboxImg =>{
+                self.check_img = !self.check_img
+            }
+            Message::CheckboxMusic =>{
+                self.check_music = !self.check_music
+            }
+
             Message::ButtonSalva =>{
                 //validazioni
                 let mut flag = 0;
@@ -233,6 +278,14 @@ impl Sandbox for MyApp {
 
         let btn_directory_log = button("Seleziona").on_press(Message::ButtonDirectoryLog);
 
+        let ck_img = checkbox("Immagini", self.check_img).on_toggle(|_| Message::CheckboxImg);
+
+        let ck_video = checkbox("Video", self.check_video).on_toggle(|_| Message::CheckboxVideo);
+
+        let ck_music = checkbox("Music", self.check_music).on_toggle(|_| Message::CheckboxMusic);
+
+        let ck_doc = checkbox("Doc", self.check_doc).on_toggle(|_| Message::CheckboxDoc);
+
         let btn_salva = button("Salva").on_press(Message::ButtonSalva);
 
 
@@ -269,6 +322,14 @@ impl Sandbox for MyApp {
         ]
             .spacing(20);
 
+        let riga4 =  row![
+            ck_video,
+            ck_img,
+            ck_doc,
+            ck_music
+        ]
+            .spacing(20);
+
         let content = column![
             text("IMPOSTAZIONI BACKUP").size(30),
             text("Seleziona una cartella sorgente"),
@@ -281,6 +342,7 @@ impl Sandbox for MyApp {
             radio_segno_conferma,
             text("Selezionare la cartella dove salvare il log di sistema"),
             riga3,
+            riga4,
             btn_salva
         ]
             .padding(20)

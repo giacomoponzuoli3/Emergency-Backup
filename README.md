@@ -28,9 +28,8 @@ Le info che servono per la configurazione (da inserire in CLI o in GUI se si rie
 - Check: se il drive esterno non è più presente, annulla il backup sennò va in panic OK
 - Gestire la X o il tasto chiudi per inserire i valori di default nella CSV
 - Rendere dinamici i parametri delle funzioni per backup (forme e path) OK, CHECK LOG
-- Pop Up di conferma: dopo la prima conferma c’è un pop up che scompare dopo 10sec
-- Sistemare Usize / i32 nella funzione del log
+- Pop Up di conferma: dopo la prima conferma c’è un pop up che scompare dopo 10sec, risolvi problema EventLoop
 - Test eseguibili per le diverse architetture OK
-- Rimuovere "Boostrap" dalla GUI e inserire una lista di filtri di file (es. all, pdf, mp4..)
-
+- inserire una lista di filtri di file (es. all, pdf, mp4..)
+- controllare se il processo principale del backup può essere aperto in contemporanea alla gui
 

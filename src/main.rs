@@ -3,6 +3,7 @@ use std::sync::{Arc, Mutex, mpsc};
 use std::{thread};
 use std::any::Any;
 use std::collections::VecDeque;
+use std::path::Path;
 use std::time::{Duration};
 use iced::{Application, Sandbox};
 use winit::event_loop::EventLoop;
@@ -11,6 +12,7 @@ use crate::gui::{ MyApp };
 use crate::shapeRecognize::shape_recognizer;
 mod model;
 use model::MouseState::MouseState;
+use crate::log::log_with_tick;
 
 mod shapeRecognize;
 mod backup;
@@ -36,9 +38,9 @@ fn main() {
    let pid = std::process::id(); // Usa l'ID del processo corrente per testare
 
    // Avvia il processo di monitoraggio della CPU in maniera parallela rispetto alla funzionalità di backup
-  /* thread::spawn(move||{
+   thread::spawn(move||{
       log_with_tick(Path::new(&value.text_directory_log), pid as i32).unwrap();
-   });*/
+   });
 
 
    let state = Arc::new(Mutex::new(MouseState {
