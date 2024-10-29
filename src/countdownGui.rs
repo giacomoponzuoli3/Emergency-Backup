@@ -1,4 +1,4 @@
-use crate::thread::sleep;
+use std::thread::sleep;
 use iced::{
     Application, Command, Element, Settings, Subscription, executor,
     widget::{Text, Column}, time::Duration, Alignment, Theme,
@@ -69,6 +69,6 @@ impl Application for App {
     }
 }
 
-fn main() -> iced::Result {
+pub fn main() -> iced::Result {
     App::run(Settings::default())
 }

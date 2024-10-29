@@ -35,7 +35,6 @@ pub fn log_with_tick(log_dir: &Path, pid: i32) -> io::Result<()> {
     loop {
         // Aspetta che il ticker riceva un segnale
         ticker.recv().unwrap();
-        println!("A");
 
         // Aggiorna le informazioni del sistema
         system.refresh_processes();

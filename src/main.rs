@@ -4,6 +4,7 @@ use std::{thread};
 use std::any::Any;
 use std::collections::VecDeque;
 use std::path::Path;
+use std::process::Command;
 use std::time::{Duration};
 use iced::{Application, Sandbox};
 use winit::event_loop::EventLoop;
@@ -22,7 +23,6 @@ mod uninstallBackground;
 mod beep;
 mod gui;
 mod countdownGui;
-
 
 fn main() {
 
@@ -77,6 +77,8 @@ fn main() {
             // ---- QUI DEVE USCIRE UNA FINESTRA PER LA CONFERMA CON UN TIMER: SE ANNULLO NON SUCCEDE NIENTE
             // ALTRIMENTI CONFERMO CON IL SECONDO SEGNO.
             // LEGGENDO LA TRACCIA NON MI è CHIARO DOVE DOVREBBE USCIRE, SE QUA OPPURE DOPO AVER RICONOSCIUTO ANCHE IL SECONDO SEGNO
+
+            Command::new("target/debug/popup_gui").spawn().expect("problema con popup");
             thread::sleep(Duration::from_millis(250));
 
             if shape_recognizer(Arc::new(value.radio_segno_conferma.unwrap()), Arc::clone(&state), logical_width, logical_height, false) {
