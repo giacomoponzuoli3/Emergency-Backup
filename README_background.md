@@ -48,7 +48,7 @@ Il processo viene identificato in maniera univoca attraverso il suo PID, e il fi
   In caso di problemi lanciare singolarmente i vari comandi che permettono di eseguire i vari processi singolarmente:
   - lanciare `release/windows/gui`
   - lanciare `release/windows/uninstall`
-  - lanciare `release/windows/Group35`
+  - lanciare `release/windows/Group-35`
   
 - Per qualsiasi **modifica** al codice, disinstallare il programma ed eseguire lo script per ricostruire il progetto eseguendo il seguente comando
   ```
@@ -82,7 +82,7 @@ Lo script `windows_build_release.bat` effettua i seguenti passaggi:
   In caso di problemi lanciare singolarmente i vari comandi che permettono di eseguire i vari processi singolarmente:
     - lanciare `release/macos-arm/gui` o `release/macos-intel/gui`
     - lanciare `release/macos-arm/uninstall` o `release/macos-intel/uninstall` 
-    - lanciare `release/macos-arm/Group35` o `release/macos-intel/Group35`
+    - lanciare `release/macos-arm/Group-35` o `release/macos-intel/Group-35`
 - Per qualsiasi **modifica** del codice, disintallare il programma ed eseguire lo script per fare il rebuild del progetto 
   ```
   macos_build_release.sh

@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::fs::File;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 use csv::{Reader, Writer};
 use iced::widget::{button, checkbox, column, radio, row, text, text_input};
 use iced::{Alignment, Element, Sandbox, Settings};
@@ -8,6 +9,8 @@ use iced::theme::Checkbox;
 use rfd::FileDialog;
 use rfd::MessageDialog;
 use serde::{Deserialize, Serialize};
+use std::env;
+use std::process;
 
 
 #[derive(Serialize, Deserialize)]
@@ -68,8 +71,21 @@ pub enum Message {
 
 impl MyApp {
     pub fn load_from_csv(file_path: &str) -> Result<MyApp, Box<dyn Error>> {
-        // Apre il file
-        let file = File::open(file_path)?;
+        let mut file;
+
+        // Verifica se siamo in modalità di release
+        if cfg!(not(debug_assertions)) {
+            let desktop_path = dirs::desktop_dir()
+                .expect("Impossibile ottenere la cartella Desktop");
+            let full_path: PathBuf = desktop_path
+                .join("Group-35")        // Aggiungi la cartella "Group-35"
+                .join(file_path);        // Aggiungi il file specificato
+            println!("{:?}", full_path);
+            file = File::open(full_path)?;
+        }else{
+            println!("debug");
+            file = File::open(file_path)?;
+        }
 
         // Crea un lettore CSV
         let mut rdr = Reader::from_reader(file);
@@ -244,7 +260,23 @@ impl Sandbox for MyApp {
                 }
 
                 if flag == 0{
-                    let file = File::create("output.csv").expect("Non posso creare il file CSV");
+
+                    let mut file;
+
+                    // Verifica se siamo in modalità di release
+                    if cfg!(not(debug_assertions)) {
+                        let desktop_path = dirs::desktop_dir()
+                            .expect("Impossibile ottenere la cartella Desktop");
+                        let full_path: PathBuf = desktop_path
+                            .join("Group-35")        // Aggiungi la cartella "Group-35"
+                            .join("output.csv");        // Aggiungi il file specificato
+                        println!("{:?}", full_path);
+                        file = File::create(full_path).expect("Non posso creare il file CSV");
+                    }else{
+                        println!("debug");
+                        file = File::create("output.csv").expect("Non posso creare il file CSV");
+                    }
+
                     let mut wtr = Writer::from_writer(file);
 
                     wtr.serialize(self).expect("Non posso scrivere i dati nel file CSV");
@@ -362,7 +394,6 @@ pub fn main() -> iced::Result {
       },
       ..Settings::default()
    }).expect("Errore");
-
 
     MessageDialog::new()
         .set_title("Errore")

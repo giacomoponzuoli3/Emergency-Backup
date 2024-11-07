@@ -27,6 +27,7 @@ fn main() {
     let app_path = wd.join("Group-35");
     println!("{:?}", app_path); // /Users/giacomoponzuoli/Desktop/Programmazione di sistema/Programmazione RUST/Group-35/target/debug/Group-35
 
+    ///Users/giacomoponzuoli/output.csv
 
     //configurazione autostart per Windows e linux
     #[cfg(not(target_os = "macos"))]
@@ -78,7 +79,13 @@ fn main() {
         // Definisci il comando da eseguire in base al sistema operativo
         let command = match os {
             "windows" => "release\\windows\\gui.exe", // Comando per Windows
-            "macos" => "release/macos/gui", // Comando per macOS
+            "macos" => {
+               if cfg!(target_arch = "x86_64") { //intel
+                   "release/macos-intel/gui"
+               }else{
+                   "release/macos-arm/gui"
+               }
+            }, // Comando per macOS
             "linux" => "release/linux/gui", // Comando per Linux
             _ => {
                 eprintln!("Sistema operativo non supportato.");

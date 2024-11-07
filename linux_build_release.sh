@@ -24,6 +24,10 @@ if [ -f "target/release/gui" ]; then
     cp target/release/gui release/linux/gui
 fi
 
+if [ -f "target/release/popup_gui" ]; then
+    cp target/release/popup_gui release/linux/popup_gui
+fi
+
 if [ -f "target/release/uninstall" ]; then
     cp target/release/uninstall release/linux/uninstall
 fi

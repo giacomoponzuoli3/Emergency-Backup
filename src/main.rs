@@ -81,13 +81,13 @@ fn main() {
             thread::sleep(Duration::from_millis(250));
 
             if shape_recognizer(Arc::new(value.radio_segno_conferma.unwrap()), Arc::clone(&state), logical_width, logical_height, false) {
-               popup.unwrap().kill();
+               popup.unwrap().kill().expect("problema kill failed");
                play_beep(Duration::from_millis(500), 440.0); // Bip lungo
                println!("secondo segno riconosciuto");
                enabled = false;
 
                let mut vec_filter = Vec::new();
-               println!("{:?} {:?}", value.check_music, value.check_video);
+
                if (value.check_music==false && value.check_doc==false && value.check_img==false && value.check_video==false){
                   vec_filter.push("all".to_string());
                }else {
