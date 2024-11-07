@@ -4,8 +4,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::collections::VecDeque;
 use std::time::{Duration, Instant};
-use iced::futures::SinkExt;
-use crate::gui::Segno;
+use crate::model::menuGui::Segno;
 
 pub(crate) fn shape_recognizer(shape: Arc<Segno>, state: Arc<Mutex<MouseState>>, logical_width: f64, logical_height: f64, is_first_recognize: bool) -> bool {
     let shape_ref = Arc::clone(&shape);
