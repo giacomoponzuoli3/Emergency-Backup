@@ -23,7 +23,7 @@ pub struct MyApp {
     check_doc: bool
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct OutputValue{
     pub text_cartella_sorgente: String,
     pub text_drive_destinazione: String,

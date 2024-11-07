@@ -65,6 +65,8 @@ fn main() {
 
 
    loop {
+      let value = MyApp::get_value();
+
 
       if enabled {
          if shape_recognizer(Arc::new(value.radio_segno_avvio.unwrap().clone()), Arc::clone(&state), logical_width, logical_height, true) {
@@ -74,20 +76,46 @@ fn main() {
             }
 
             println!("primo segno riconosciuto ");
-            // ---- QUI DEVE USCIRE UNA FINESTRA PER LA CONFERMA CON UN TIMER: SE ANNULLO NON SUCCEDE NIENTE
-            // ALTRIMENTI CONFERMO CON IL SECONDO SEGNO.
-            // LEGGENDO LA TRACCIA NON MI è CHIARO DOVE DOVREBBE USCIRE, SE QUA OPPURE DOPO AVER RICONOSCIUTO ANCHE IL SECONDO SEGNO
 
-            Command::new("target/debug/popup_gui").spawn().expect("problema con popup");
+            let popup = Command::new("target/debug/popup_gui").spawn();
             thread::sleep(Duration::from_millis(250));
 
             if shape_recognizer(Arc::new(value.radio_segno_conferma.unwrap()), Arc::clone(&state), logical_width, logical_height, false) {
-
+               popup.unwrap().kill();
                play_beep(Duration::from_millis(500), 440.0); // Bip lungo
                println!("secondo segno riconosciuto");
                enabled = false;
 
-               backup_execute( &value.text_drive_destinazione , &value.text_cartella_sorgente, &vec!["all".to_string()] ).expect("errore nel backup");
+               let mut vec_filter = Vec::new();
+               println!("{:?} {:?}", value.check_music, value.check_video);
+               if (value.check_music==false && value.check_doc==false && value.check_img==false && value.check_video==false){
+                  vec_filter.push("all".to_string());
+               }else {
+                  if value.check_video{
+                     vec_filter.push("mp4".to_string());
+                     vec_filter.push("avi".to_string());
+                     vec_filter.push("mov".to_string());
+                  }
+                  if value.check_doc{
+                     vec_filter.push("pdf".to_string());
+                     vec_filter.push("docx".to_string());
+                     vec_filter.push("xlsx".to_string());
+                     vec_filter.push("pptx".to_string());
+
+                  }
+                  if value.check_img{
+                     vec_filter.push("png".to_string());
+                     vec_filter.push("jpg".to_string());
+                     vec_filter.push("gif".to_string());
+                  }
+                  if value.check_music{
+                     vec_filter.push("mp3".to_string());
+                     vec_filter.push("wav".to_string());
+                  }
+
+               }
+              // println!("{:?}", vec_filter);
+               backup_execute( &value.text_drive_destinazione , &value.text_cartella_sorgente, &vec_filter ).expect("errore nel backup");
                enabled = true;
                first_recognition_done = false; // Resetta il flag per riconoscere di nuovo
             } else {

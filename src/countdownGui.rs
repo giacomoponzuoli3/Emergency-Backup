@@ -5,6 +5,8 @@ use iced::{
 };
 use std::time::Instant;
 use iced::futures::{stream, StreamExt};
+use iced::futures::future::ok;
+
 
 #[derive(Debug, Clone, Copy)]
 pub enum Message {
@@ -70,5 +72,13 @@ impl Application for App {
 }
 
 pub fn main() -> iced::Result {
-    App::run(Settings::default())
+    App::run(Settings {
+        window: iced::window::Settings {
+            size: iced::Size::new(400 as f32, 200 as f32),  // Imposta la dimensione della finestra
+            resizable: true,   // Permette di ridimensionare la finestra
+            ..Default::default()
+        },
+        ..Settings::default()
+    }).expect("Errore");
+    Ok(())
 }

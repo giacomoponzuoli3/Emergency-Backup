@@ -17,7 +17,7 @@ pub fn log_with_tick(log_dir: &Path, pid: i32) -> io::Result<()> {
     println!("{:?}, {:?}", log_dir, pid );
 
     // Crea un ticker che scatta ogni 120 secondi
-    let ticker = start_ticker(Duration::from_secs(5));
+    let ticker = start_ticker(Duration::from_secs(120));
 
     // Inizia a monitorare la CPU del processo
     let mut system = System::new_all();
