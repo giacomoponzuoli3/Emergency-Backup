@@ -71,8 +71,8 @@ impl MyApp {
             let desktop_path = dirs::desktop_dir()
                 .expect("Impossibile ottenere la cartella Desktop");
             let full_path: PathBuf = desktop_path
-                .join("Group-35")        // Aggiungi la cartella "Group-35"
-                .join(file_path);        // Aggiungi il file specificato
+                .join("Group-35")// Aggiungi la cartella "Group-35"
+                .join(file_path);   // Aggiungi il file specificato
             println!("{:?}", full_path);
             file = File::open(full_path)?;
         }else{
