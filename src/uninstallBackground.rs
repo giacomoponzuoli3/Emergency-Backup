@@ -1,29 +1,6 @@
-use std::env;
 use std::process::Command;
-use auto_launch::{ AutoLaunchBuilder};
 
 fn main() {
-    let exe = env::current_exe().unwrap(); // exe path
-    let wd = exe.parent().unwrap();
-    let app_path = wd.join("Group-35");
-
-    let _ = AutoLaunchBuilder::new()
-        .set_app_name("Group-35")
-        .set_app_path(&app_path.to_str().unwrap())
-        .set_use_launch_agent(false)
-        .build()
-        .unwrap().disable();
-
-    #[cfg(target_os = "macos")]
-    {
-        let _ = AutoLaunchBuilder::new()
-            .set_app_name("Group-35")
-            .set_app_path(&app_path.to_str().unwrap())
-            .set_use_launch_agent(true)
-            .build()
-            .unwrap().disable();
-    }
-
     #[cfg(target_os = "windows")]
     {
         let _ = Command::new("taskkill")
@@ -47,5 +24,4 @@ fn main() {
             .output()
             .expect("Failed to execute command");
     }
-
 }

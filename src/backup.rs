@@ -18,7 +18,6 @@ fn list_external_drives() -> Vec<String> {
             }
         }
     }
-    //println!("{:?}", drives);
     drives
 }
 

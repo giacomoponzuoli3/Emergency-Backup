@@ -68,15 +68,17 @@ impl MyApp {
 
         // Verifica se siamo in modalità di release
         if cfg!(not(debug_assertions)) {
+
             let desktop_path = dirs::desktop_dir()
                 .expect("Impossibile ottenere la cartella Desktop");
+
             let full_path: PathBuf = desktop_path
                 .join("Group-35")// Aggiungi la cartella "Group-35"
                 .join(file_path);   // Aggiungi il file specificato
-            println!("{:?}", full_path);
+
             file = File::open(full_path)?;
         }else{
-            println!("debug");
+            println!("Modalità debug");
             file = File::open(file_path)?;
         }
 
@@ -239,15 +241,17 @@ impl Sandbox for MyApp {
 
                     // Verifica se siamo in modalità di release
                     if cfg!(not(debug_assertions)) {
+
                         let desktop_path = dirs::desktop_dir()
                             .expect("Impossibile ottenere la cartella Desktop");
+
                         let full_path: PathBuf = desktop_path
                             .join("Group-35")        // Aggiungi la cartella "Group-35"
                             .join("output.csv");        // Aggiungi il file specificato
-                        println!("{:?}", full_path);
+
                         file = File::create(full_path).expect("Non posso creare il file CSV");
                     }else{
-                        println!("debug");
+                        println!("Modalità debug");
                         file = File::create("output.csv").expect("Non posso creare il file CSV");
                     }
 

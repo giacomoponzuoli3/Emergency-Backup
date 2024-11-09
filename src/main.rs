@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex, mpsc};
 use std::{thread};
 use std::any::Any;
 use std::collections::VecDeque;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration};
 use iced::{Application, Sandbox};
@@ -14,11 +14,12 @@ use crate::shapeRecognize::shape_recognizer;
 mod model;
 use model::MouseState::MouseState;
 use crate::log::log_with_tick;
+use crate::model::PathBase::get_base_path;
 
 mod shapeRecognize;
 mod backup;
 mod log;
-mod mainBackground;
+
 mod uninstallBackground;
 mod beep;
 mod gui;
@@ -68,15 +69,39 @@ fn main() {
                first_recognition_done = true;
             }
 
-            println!("primo segno riconosciuto ");
+            println!("Primo segno riconosciuto");
 
-            let popup = Command::new("target/debug/popup_gui").spawn();
+            //desktop path ../Desktop
+            let desktop_path = dirs::desktop_dir()
+                .expect("Impossibile ottenere la cartella Desktop");
+
+            //base path per tutti gli eseguibili è ../Desktop/Group-35/release
+            let base_path: PathBuf = desktop_path
+                .join("Group-35")// Aggiungi la cartella "Group-35"
+                .join("release");   // Aggiungi il file specificato
+
+            let mut path_popup_gui= match get_base_path(&base_path) {
+               Some(path) => path,
+               None => return, // Esci se il sistema operativo non è supportato
+            };
+
+            path_popup_gui = path_popup_gui.join("popup_gui");
+
+            // Se il sistema è Windows, aggiungi l'estensione ".exe"
+            #[cfg(windows)]
+            {
+               path_popup_gui.set_extension("exe");
+            }
+
+            println!("Path popup_gui: {:?}", path_popup_gui);
+
+            let popup = Command::new(path_popup_gui).spawn();
             thread::sleep(Duration::from_millis(250));
 
             if shape_recognizer(Arc::new(value.radio_segno_conferma.unwrap()), Arc::clone(&state), logical_width, logical_height, false) {
                popup.unwrap().kill().expect("problema kill failed");
                play_beep(Duration::from_millis(500), 440.0); // Bip lungo
-               println!("secondo segno riconosciuto");
+               println!("Secondo segno riconosciuto.");
                enabled = false;
 
                let mut vec_filter = Vec::new();
@@ -107,18 +132,18 @@ fn main() {
                   }
 
                }
-              // println!("{:?}", vec_filter);
+
                backup_execute( &value.text_drive_destinazione , &value.text_cartella_sorgente, &vec_filter ).expect("errore nel backup");
                enabled = true;
                first_recognition_done = false; // Resetta il flag per riconoscere di nuovo
             } else {
-               println!("timer scaduto, ripartire dal primo segno");
+               println!("Timer scaduto, ripartire dal primo segno.");
                play_beep(Duration::from_millis(500), 220.0); // Bip errore
                first_recognition_done = false;
             }
          }
       }else {
-         println!("riconoscimento non attivo, azione in corso")
+         println!("Riconoscimento non attivo, azione in corso.")
       }
    }
 }

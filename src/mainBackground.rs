@@ -1,4 +1,4 @@
-
+mod model;
 
 use auto_launch::{ AutoLaunchBuilder};
 use std::env;
@@ -12,7 +12,7 @@ use std::fs::File;
 use std::io::{Error, Write};
 use std::time::{Duration, Instant};
 use crossbeam_channel::tick;
-
+use crate::model::PathBase::get_base_path;
 
 // ESEMPIO BASE SCRITTURA FILE LOG OGNI 2 MINUTI
 // bisogna prendere l'utilizzo di CPU del processo
@@ -23,7 +23,7 @@ fn main() {
     // Rileva il sistema operativo corrente
     let os = env::consts::OS;
 
-    //dektop path ../Desktop
+    //desktop path ../Desktop
     let desktop_path = dirs::desktop_dir()
         .expect("Impossibile ottenere la cartella Desktop");
 
@@ -32,32 +32,23 @@ fn main() {
         .join("Group-35")// Aggiungi la cartella "Group-35"
         .join("release");   // Aggiungi il file specificato
 
-    //definizione base path
-    base_path = match os {
-        "windows" => base_path
-            .join("windows"),
-        "macos" => {
-            if cfg!(target_arch = "x86_64") { //intel
-                base_path.join("macos-intel")
-            } else { //arm
-                base_path.join("macos-arm")
-            }
-        },
-        "linux" => base_path.join("linux"),
-        _ => {
-            eprintln!("Sistema operativo non supportato.");
-            return;
-        }
+    //definizione base path ../Desktop/Group-35/release/...
+    base_path = match get_base_path(&base_path) {
+        Some(path) => path,
+        None => return, // Esci se il sistema operativo non è supportato
     };
 
-    //questi verranno eliminati
-    let exe = env::current_exe().unwrap(); // exe path
-    let wd = exe.parent().unwrap();
-    println!("{:?}", wd); //  /Users/giacomoponzuoli/Desktop/Programmazione di sistema/Programmazione RUST/Group-35/target/debug
-
-    //corretto
+    //determino il path dell'auto start
     let auto_start_path = base_path.join("Group-35");
-    println!("Auto start: {:?}", auto_start_path);
+
+
+    // Se il sistema è Windows, aggiungi l'estensione ".exe"
+    #[cfg(windows)]
+    {
+        auto_start_path.set_extension("exe");
+    }
+
+    println!("Auto start path: {:?}", auto_start_path);
 
     //configurazione autostart per Windows e linux
     #[cfg(not(target_os = "macos"))]
@@ -83,13 +74,6 @@ fn main() {
             .set_use_launch_agent(false) //Questo imposta se utilizzare i Launch Agents su macOS (in questo caso no)
             .build() //Crea la configurazione completa per l'auto-launch, con tutte le opzioni specificate
             .unwrap().enable(); //abilita l'avvio automatico della tua applicazione. Dopo aver chiamato questo metodo, l'applicazione "Group-35" verrà configurata per avviarsi automaticamente all'accensione del sistema
-
-        Command::new("osascript") //comando di macOS che permette di eseguire script AppleScript direttamente dalla linea di comando
-            .arg("-e") // indica che il successivo comando sarà uno script passato direttamente sulla linea di comando
-            .arg("tell application \"Terminal\" to set visible of front window to false") //script AppleScript vero e proprio. L'istruzione tell application "Terminal" invia un comando all'applicazione Terminale
-            .output() //Esegue il comando e raccoglie l'output del processo
-            .expect("Failed to hide terminal"); //Se il comando non viene eseguito correttamente
-
     }
 
     /*
@@ -101,49 +85,50 @@ fn main() {
     let path_csv = desktop_path
         .join("Group-35")
         .join("output.csv");
+
     if path_csv.exists() {
         println!("Il file 'output.csv' esiste. Non lancio la GUI");
 
     } else {
         println!("Il file 'output.csv' non esiste. Lancio la GUI");
 
-        let mut path_gui = base_path.clone();
-        // Definisci il comando da eseguire in base al sistema operativo
-        #[cfg(target_os = "windows")]
+        //determino il path della gui
+        let mut path_gui = base_path.clone().join("gui");
+
+        // Se il sistema è Windows, aggiungi l'estensione ".exe"
+        #[cfg(windows)]
         {
-            path_gui = base_path.join("gui.exe")
-        }
-        #[cfg(not(target_os = "windows"))]
-        {
-            path_gui = base_path.join("gui")
+            path_gui.set_extension("exe");
         }
 
+        println!("GUI path: {:?}", path_gui);
+
         // Esegui il comando
-        let status = Command::new(path_gui)
+        let mut status = Command::new(path_gui.clone())
             .status()
             .expect("Errore durante l'esecuzione del comando");
 
-        // Controlla se il comando è stato eseguito con successo
-        if status.success() {
-            println!("Il comando è stato eseguito con successo.");
-        } else {
-            eprintln!("Il comando ha restituito un errore.");
+        // Controlla se il comando è stato eseguito con successo, altrimenti rimostra la gui
+        while !(status.success()) {
+            println!("Errore nella creazione della GUI.");
+            status = Command::new(path_gui.clone())
+                .status()
+                .expect("Errore durante l'esecuzione del comando");
         }
+
+        println!("Il comando è stato eseguito con successo.");
     }
 
 
-    /* Processo di che avvia l'applicazione  */
-    let mut path_main = base_path.clone();
-
-    // Definisci il comando da eseguire in base al sistema operativo
-    #[cfg(target_os = "windows")]
+    /* Processo di che avvia l'applicazione del backup */
+    let mut path_main = base_path.clone().join("main");
+    // Se il sistema è Windows, aggiungi l'estensione ".exe"
+    #[cfg(windows)]
     {
-        path_main = base_path.join("main.exe")
+        path_main.set_extension("exe");
     }
-    #[cfg(not(target_os = "windows"))]
-    {
-        path_main = base_path.join("main")
-    }
+
+    println!("Backup path: {:?}", auto_start_path);
 
     //avvio background dell'app
     #[cfg(target_os = "windows")]
@@ -172,7 +157,6 @@ fn main() {
         let pid = Command::new("pgrep")  //cerca il processo con il nome specificato da dal path
             .args(&["-f", &path_main.to_str().unwrap()])
             .output();
-
         //se restituisce Ok(_) significa che non è avvenuto nessun errore e bisogna controllare che il processo sia in esecuzione tramite il pid
         match &pid {
             Ok(_) => {
