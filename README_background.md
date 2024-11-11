@@ -11,7 +11,7 @@ L'app è portatile, cioè è un programma software che può essere eseguito su u
 Per lanciare i comandi seguenti assicurati di essere nella directory principale del progetto.
 Il programma è composto dai seguenti file:
 - `mainBackground.rs`: contiene un'applicazione che esegue periodicamente alcune operazioni in background, tra cui la registrazione su un file di log ogni secondo per un periodo di tempo, oltre a configurare l'avvio automatico dell'applicazione all'avvio del sistema operativo, con specifiche implementazioni per Windows, Linux e macOS
-- `uninstallBackground.rs`: questo file Rust ha l'obiettivo di disabilitare l'avvio automatico di un'applicazione chiamata "Group-35" e di terminare la sua esecuzione, a seconda del sistema operativo in uso (Windows, macOS, o Linux)
+- `uninstall_background`: questo file Rust ha l'obiettivo di disabilitare l'avvio automatico di un'applicazione chiamata "Group-35" e di terminare la sua esecuzione, a seconda del sistema operativo in uso (Windows, macOS, o Linux)
 - `backup.rs`: questo programma in Rust è progettato per eseguire un backup di una directory su un drive esterno rimovibile, formata dalle seguenti funzioni:
   - `list_external_drives`: 
     - utilizza la libreria `sysinfo` per ottenere un elenco di drive esterni (rimovibili) collegati al sistema

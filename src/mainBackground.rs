@@ -12,7 +12,7 @@ use std::fs::File;
 use std::io::{Error, Write};
 use std::time::{Duration, Instant};
 use crossbeam_channel::tick;
-use crate::model::PathBase::get_base_path;
+use crate::model::path_base::get_base_path;
 
 // ESEMPIO BASE SCRITTURA FILE LOG OGNI 2 MINUTI
 // bisogna prendere l'utilizzo di CPU del processo

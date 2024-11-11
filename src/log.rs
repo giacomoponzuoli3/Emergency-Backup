@@ -1,10 +1,10 @@
-use std::fs::{File, OpenOptions};
+use std::fs::{ OpenOptions};
 use std::io::{self, Write};
 use std::path::Path;
 use std::sync::mpsc::{self, Receiver};
 use std::thread;
-use std::time::{Duration, Instant};
-use sysinfo::{Pid, PidExt, ProcessExt, System, SystemExt};
+use std::time::{Duration};
+use sysinfo::{Pid, ProcessExt, System, SystemExt};
 
 pub fn log_with_tick(log_dir: &Path, pid: i32) -> io::Result<()> {
     // Crea o apri il file di log nella directory specificata

@@ -1,29 +1,28 @@
 use crate::backup::backup_execute;
-use std::sync::{Arc, Mutex, mpsc};
+use std::sync::{Arc, Mutex};
 use std::{thread};
-use std::any::Any;
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration};
-use iced::{Application, Sandbox};
+
 use winit::event_loop::EventLoop;
 use crate::beep::play_beep;
-use crate::model::menuGui::{ MyApp };
-use crate::shapeRecognize::shape_recognizer;
+use crate::model::menu_gui::{ MyApp };
+use crate::shape_recognize::shape_recognizer;
 mod model;
-use model::MouseState::MouseState;
+use model::mouse_state::MouseState;
 use crate::log::log_with_tick;
-use crate::model::PathBase::get_base_path;
+use crate::model::path_base::get_base_path;
 
-mod shapeRecognize;
+mod shape_recognize;
 mod backup;
 mod log;
 
-mod uninstallBackground;
+mod uninstall_background;
 mod beep;
 mod gui;
-mod countdownGui;
+mod countdown_gui;
 
 fn main() {
 
@@ -69,7 +68,7 @@ fn main() {
                first_recognition_done = true;
             }
 
-            println!("Primo segno riconosciuto");
+            println!("Primo segno riconosciuto: {:?}", value.radio_segno_avvio);
 
             //desktop path ../Desktop
             let desktop_path = dirs::desktop_dir()
@@ -99,14 +98,14 @@ fn main() {
             thread::sleep(Duration::from_millis(250));
 
             if shape_recognizer(Arc::new(value.radio_segno_conferma.unwrap()), Arc::clone(&state), logical_width, logical_height, false) {
-               popup.unwrap().kill().expect("problema kill failed");
+               //popup.unwrap().kill().expect("finestra timer non chiusa correttamente");
                play_beep(Duration::from_millis(500), 440.0); // Bip lungo
-               println!("Secondo segno riconosciuto.");
+               println!("Secondo segno riconosciuto: {:?}", value.radio_segno_conferma);
                enabled = false;
 
                let mut vec_filter = Vec::new();
 
-               if (value.check_music==false && value.check_doc==false && value.check_img==false && value.check_video==false){
+               if value.check_music==false && value.check_doc==false && value.check_img==false && value.check_video==false{
                   vec_filter.push("all".to_string());
                }else {
                   if value.check_video{
@@ -137,13 +136,13 @@ fn main() {
                enabled = true;
                first_recognition_done = false; // Resetta il flag per riconoscere di nuovo
             } else {
-               println!("Timer scaduto, ripartire dal primo segno.");
+               println!("Il timer è scaduto, si riparte dal riconoscimento del primo segno.");
                play_beep(Duration::from_millis(500), 220.0); // Bip errore
                first_recognition_done = false;
             }
          }
       }else {
-         println!("Riconoscimento non attivo, azione in corso.")
+         println!("Riconoscimento non attivo, errore.")
       }
    }
 }
