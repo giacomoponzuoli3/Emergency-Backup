@@ -128,7 +128,7 @@ fn main() {
         path_main.set_extension("exe");
     }
 
-    println!("Backup path: {:?}", auto_start_path);
+    println!("Backup path: {:?}", path_main);
 
     //avvio background dell'app
     #[cfg(target_os = "windows")]
