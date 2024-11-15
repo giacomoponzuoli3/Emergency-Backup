@@ -2,7 +2,6 @@ use iced::{ Sandbox, Settings};
 use rfd::MessageDialog;
 
 
-mod model;
 use crate::model::menu_gui::MyApp;
 
 pub fn main() -> iced::Result {

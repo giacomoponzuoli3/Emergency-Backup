@@ -5,7 +5,7 @@ use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration};
-
+use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
 use crate::beep::play_beep;
 use crate::model::menu_gui::{ MyApp };
@@ -43,11 +43,23 @@ fn main() {
 
    // Crea un event loop per ottenere la dimensione dello schermo
    let event_loop = EventLoop::new();
-   let primary_monitor = event_loop.primary_monitor().unwrap();
+   let mut size = PhysicalSize::new(  1920, 1080);
+   let mut scale_factor :f64 =1.0;
 
-   // Recupera le dimensioni fisiche del monitor
-   let size = primary_monitor.size(); // Dimensioni fisiche
-   let scale_factor = primary_monitor.scale_factor(); // Fattore di scaling
+   let primary_monitor = event_loop.primary_monitor();
+   match primary_monitor {
+      Some(monitor) => {
+         // Recupera le dimensioni fisiche del monitor
+         size = monitor.size();
+         scale_factor = monitor.scale_factor();
+      },
+      None => {
+         // RSe non c'è un monitor, usa le dimensioni inserite staticamente
+         println!("No Monitor found");
+      }
+   }
+
+
 
    // Calcola le dimensioni logiche
    let logical_width = (size.width as f64 / scale_factor) as f64;
@@ -98,7 +110,7 @@ fn main() {
             thread::sleep(Duration::from_millis(250));
 
             if shape_recognizer(Arc::new(value.radio_segno_conferma.unwrap()), Arc::clone(&state), logical_width, logical_height, false) {
-               //popup.unwrap().kill().expect("finestra timer non chiusa correttamente");
+               popup.unwrap().kill().expect("finestra timer non chiusa correttamente");
                play_beep(Duration::from_millis(500), 440.0); // Bip lungo
                println!("Secondo segno riconosciuto: {:?}", value.radio_segno_conferma);
                enabled = false;
