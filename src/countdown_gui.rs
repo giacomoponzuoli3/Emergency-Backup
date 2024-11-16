@@ -1,9 +1,6 @@
-use iced::{
-    Application, Settings
-    ,
-};
+use iced::{Application, Settings};
 
-//mod model;
+mod model;
 use crate::model::countdown::App;
 
 pub fn main() -> iced::Result {

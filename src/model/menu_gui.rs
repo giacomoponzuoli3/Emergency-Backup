@@ -185,11 +185,11 @@ impl Sandbox for MyApp {
                     self.text_directory_log = path.display().to_string();
                 }
             }
-            Message::SegnoSelectedAvvio(Segno) => {
-                self.radio_segno_avvio = Some(Segno);
+            Message::SegnoSelectedAvvio(segno) => {
+                self.radio_segno_avvio = Some(segno);
             }
-            Message::SegnoSelectedConferma(Segno) => {
-                self.radio_segno_conferma = Some(Segno);
+            Message::SegnoSelectedConferma(segno) => {
+                self.radio_segno_conferma = Some(segno);
             }
             Message::CheckboxVideo =>{
                 self.check_video = !self.check_video
@@ -294,13 +294,15 @@ impl Sandbox for MyApp {
 
         let radio_segno_avvio = row![
             radio("Rettangolo", Segno::Rettangolo, self.radio_segno_avvio, Message::SegnoSelectedAvvio),
-            radio("Cerchio", Segno::Cerchio, self.radio_segno_avvio, Message::SegnoSelectedAvvio)
+            radio("Cerchio", Segno::Cerchio, self.radio_segno_avvio, Message::SegnoSelectedAvvio),
+            radio("Meno", Segno::Meno, self.radio_segno_avvio, Message::SegnoSelectedAvvio)
         ]
             .spacing(20);
 
         let radio_segno_conferma = row![
             radio("Rettangolo", Segno::Rettangolo, self.radio_segno_conferma, Message::SegnoSelectedConferma),
-            radio("Cerchio", Segno::Cerchio, self.radio_segno_conferma, Message::SegnoSelectedConferma)
+            radio("Cerchio", Segno::Cerchio, self.radio_segno_conferma, Message::SegnoSelectedConferma),
+            radio("Meno", Segno::Meno, self.radio_segno_avvio, Message::SegnoSelectedAvvio)
         ]
             .spacing(20);
 

@@ -1,7 +1,6 @@
-use iced::{ Sandbox, Settings};
-use rfd::MessageDialog;
+use iced::{Sandbox, Settings};
 
-
+mod model;
 use crate::model::menu_gui::MyApp;
 
 pub fn main() -> iced::Result {
@@ -14,10 +13,5 @@ pub fn main() -> iced::Result {
       ..Settings::default()
    }).expect("Errore");
 
-    MessageDialog::new()
-        .set_title("Errore")
-        .set_description("Il campo cartella sorgente è obbligatorio!")
-        .set_buttons(rfd::MessageButtons::Ok)
-        .show();
     Ok(())
 }
