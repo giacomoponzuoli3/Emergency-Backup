@@ -1,39 +1,32 @@
 use crate::backup::backup_execute;
-use std::sync::{Arc, Mutex, mpsc};
+use std::sync::{Arc, Mutex};
 use std::{thread};
-use std::any::Any;
 use std::collections::VecDeque;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{Duration};
-use iced::{Application, Sandbox};
+use winit::dpi::PhysicalSize;
 use winit::event_loop::EventLoop;
 use crate::beep::play_beep;
-use crate::gui::{ MyApp };
-use crate::shapeRecognize::shape_recognizer;
+use crate::model::menu_gui::{ MyApp };
+use crate::shape_recognize::shape_recognizer;
 mod model;
-use model::MouseState::MouseState;
+use model::mouse_state::MouseState;
 use crate::log::log_with_tick;
+use crate::model::path_base::get_base_path;
 
-mod shapeRecognize;
+mod shape_recognize;
 mod backup;
 mod log;
-mod mainBackground;
-mod uninstallBackground;
+
+mod uninstall_background;
 mod beep;
 mod gui;
-mod countdownGui;
+mod countdown_gui;
 
 fn main() {
 
    let value = MyApp::get_value();
-   //FARE UN CONTROLLO PER VERIFICARE SE ESISTE IL FILE, SE NON ESISTE CREARLO CON IL CODICE SEGUENTE
-   /*
-   let file = File::create("output.csv").expect("Non posso creare il file CSV");
-   let mut wtr = Writer::from_writer(file);
-   wtr.serialize(&value).expect("Non posso scrivere i dati nel file CSV");
-   wtr.flush().expect("Non posso salvare i dati nel file");
-    */
 
    let pid = std::process::id(); // Usa l'ID del processo corrente per testare
 
@@ -50,11 +43,23 @@ fn main() {
 
    // Crea un event loop per ottenere la dimensione dello schermo
    let event_loop = EventLoop::new();
-   let primary_monitor = event_loop.primary_monitor().unwrap();
+   let mut size = PhysicalSize::new(  1920, 1080);
+   let mut scale_factor :f64 =1.0;
 
-   // Recupera le dimensioni fisiche del monitor
-   let size = primary_monitor.size(); // Dimensioni fisiche
-   let scale_factor = primary_monitor.scale_factor(); // Fattore di scaling
+   let primary_monitor = event_loop.primary_monitor();
+   match primary_monitor {
+      Some(monitor) => {
+         // Recupera le dimensioni fisiche del monitor
+         size = monitor.size();
+         scale_factor = monitor.scale_factor();
+      },
+      None => {
+         // RSe non c'è un monitor, usa le dimensioni inserite staticamente
+         println!("No Monitor found");
+      }
+   }
+
+
 
    // Calcola le dimensioni logiche
    let logical_width = (size.width as f64 / scale_factor) as f64;
@@ -75,20 +80,44 @@ fn main() {
                first_recognition_done = true;
             }
 
-            println!("primo segno riconosciuto ");
+            println!("Primo segno riconosciuto: {:?}", value.radio_segno_avvio);
 
-            let popup = Command::new("target/debug/popup_gui").spawn();
+            //desktop path ../Desktop
+            let desktop_path = dirs::desktop_dir()
+                .expect("Impossibile ottenere la cartella Desktop");
+
+            //base path per tutti gli eseguibili è ../Desktop/Group-35/release
+            let base_path: PathBuf = desktop_path
+                .join("Group-35")// Aggiungi la cartella "Group-35"
+                .join("release");   // Aggiungi il file specificato
+
+            let mut path_popup_gui= match get_base_path(&base_path) {
+               Some(path) => path,
+               None => return, // Esci se il sistema operativo non è supportato
+            };
+
+            path_popup_gui = path_popup_gui.join("popup_gui");
+
+            // Se il sistema è Windows, aggiungi l'estensione ".exe"
+            #[cfg(windows)]
+            {
+               path_popup_gui.set_extension("exe");
+            }
+
+            println!("Path popup_gui: {:?}", path_popup_gui);
+
+            let popup = Command::new(path_popup_gui).spawn();
             thread::sleep(Duration::from_millis(250));
 
             if shape_recognizer(Arc::new(value.radio_segno_conferma.unwrap()), Arc::clone(&state), logical_width, logical_height, false) {
-               popup.unwrap().kill();
+               popup.unwrap().kill().expect("finestra timer non chiusa correttamente");
                play_beep(Duration::from_millis(500), 440.0); // Bip lungo
-               println!("secondo segno riconosciuto");
+               println!("Secondo segno riconosciuto: {:?}", value.radio_segno_conferma);
                enabled = false;
 
                let mut vec_filter = Vec::new();
-               println!("{:?} {:?}", value.check_music, value.check_video);
-               if (value.check_music==false && value.check_doc==false && value.check_img==false && value.check_video==false){
+
+               if value.check_music==false && value.check_doc==false && value.check_img==false && value.check_video==false{
                   vec_filter.push("all".to_string());
                }else {
                   if value.check_video{
@@ -114,18 +143,18 @@ fn main() {
                   }
 
                }
-              // println!("{:?}", vec_filter);
+
                backup_execute( &value.text_drive_destinazione , &value.text_cartella_sorgente, &vec_filter ).expect("errore nel backup");
                enabled = true;
                first_recognition_done = false; // Resetta il flag per riconoscere di nuovo
             } else {
-               println!("timer scaduto, ripartire dal primo segno");
+               println!("Il timer è scaduto, si riparte dal riconoscimento del primo segno.");
                play_beep(Duration::from_millis(500), 220.0); // Bip errore
                first_recognition_done = false;
             }
          }
       }else {
-         println!("riconoscimento non attivo, azione in corso")
+         println!("Riconoscimento non attivo, errore.")
       }
    }
 }

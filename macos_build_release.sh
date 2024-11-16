@@ -33,6 +33,10 @@ copy_executables() {
         cp "target/$ARCH/release/gui" "$RELEASE_DIR/gui"
     fi
 
+    if [ -f "target/$ARCH/release/popup_gui" ]; then
+          cp "target/$ARCH/release/popup_gui" "$RELEASE_DIR/popup_gui"
+    fi
+
     if [ -f "target/$ARCH/release/uninstall" ]; then
         cp "target/$ARCH/release/uninstall" "$RELEASE_DIR/uninstall"
     fi

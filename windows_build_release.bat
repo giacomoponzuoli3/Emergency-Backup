@@ -24,6 +24,9 @@ if exist target\release\main.exe (
 if exist target\release\gui.exe (
     copy target\release\gui.exe release\windows\gui.exe
 )
+if exist target\release\popup_gui.exe (
+    copy target\release\popup_gui.exe release\windows\popup_gui.exe
+)
 
 if exist target\release\uninstall.exe (
     copy target\release\uninstall.exe release\windows\uninstall.exe

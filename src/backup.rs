@@ -18,7 +18,6 @@ fn list_external_drives() -> Vec<String> {
             }
         }
     }
-    //println!("{:?}", drives);
     drives
 }
 
@@ -61,12 +60,10 @@ fn should_copy_file(path: &Path, file_types: &[String]) -> bool {
 pub fn backup_execute(selected_drive: &String, src_dir: &str, file_types: &[String]) -> io::Result<()> {
 
 
-       // let src_dir = std::env::current_dir()?;
-
         let drives = list_external_drives();
         //println!("{:?}", &src_dir);
         if !drives.contains(selected_drive) {
-            println!("il drive indicato non è corretto. Aggiornare la configurazione");
+            println!("Il drive esterno indicato non è corretto. Aggiornare la configurazione");
             play_beep(Duration::from_millis(750), 220.0); // Bip lungo
             return Ok(());
         }

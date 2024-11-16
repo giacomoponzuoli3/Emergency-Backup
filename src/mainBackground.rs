@@ -1,9 +1,9 @@
-
+mod model;
 
 use auto_launch::{ AutoLaunchBuilder};
 use std::env;
 use std::process::{Command};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::thread;
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
@@ -12,28 +12,50 @@ use std::fs::File;
 use std::io::{Error, Write};
 use std::time::{Duration, Instant};
 use crossbeam_channel::tick;
-
+use crate::model::path_base::get_base_path;
 
 // ESEMPIO BASE SCRITTURA FILE LOG OGNI 2 MINUTI
 // bisogna prendere l'utilizzo di CPU del processo
 
 
 fn main() {
-    let exe = env::current_exe().unwrap(); // exe path
-    let wd = exe.parent().unwrap();
-    println!("{:?}", wd); //  /Users/giacomoponzuoli/Desktop/Programmazione di sistema/Programmazione RUST/Group-35/target/debug
 
-    /* Autostart configuration */
-    let app_path = wd.join("Group-35");
-    println!("{:?}", app_path); // /Users/giacomoponzuoli/Desktop/Programmazione di sistema/Programmazione RUST/Group-35/target/debug/Group-35
+    // Rileva il sistema operativo corrente
+    let os = env::consts::OS;
 
+    //desktop path ../Desktop
+    let desktop_path = dirs::desktop_dir()
+        .expect("Impossibile ottenere la cartella Desktop");
+
+    //base path per tutti gli eseguibili è ../Desktop/Group-35/release
+    let mut base_path: PathBuf = desktop_path
+        .join("Group-35")// Aggiungi la cartella "Group-35"
+        .join("release");   // Aggiungi il file specificato
+
+    //definizione base path ../Desktop/Group-35/release/...
+    base_path = match get_base_path(&base_path) {
+        Some(path) => path,
+        None => return, // Esci se il sistema operativo non è supportato
+    };
+
+    //determino il path dell'auto start
+    let auto_start_path = base_path.join("Group-35");
+
+
+    // Se il sistema è Windows, aggiungi l'estensione ".exe"
+    #[cfg(windows)]
+    {
+        auto_start_path.set_extension("exe");
+    }
+
+    println!("Auto start path: {:?}", auto_start_path);
 
     //configurazione autostart per Windows e linux
     #[cfg(not(target_os = "macos"))]
     {
         let auto = AutoLaunchBuilder::new()
             .set_app_name("Group-35")
-            .set_app_path(&app_path.to_str().unwrap())
+            .set_app_path(&auto_start_path.to_str().unwrap())
             .set_use_launch_agent(false)
             .build()
             .unwrap();
@@ -45,18 +67,13 @@ fn main() {
 
     #[cfg(target_os = "macos")]
     {
+
         let _ = AutoLaunchBuilder::new()
             .set_app_name("Group-35") //nome che verrà utilizzato per identificare l'applicazione che verrà avviata automaticamente all'avvio del sistema
-            .set_app_path(&app_path.to_str().unwrap()) //Imposta il percorso dell'eseguibile che deve essere lanciato automaticamente
+            .set_app_path(&auto_start_path.to_str().unwrap()) //Imposta il percorso dell'eseguibile che deve essere lanciato automaticamente
             .set_use_launch_agent(false) //Questo imposta se utilizzare i Launch Agents su macOS (in questo caso no)
             .build() //Crea la configurazione completa per l'auto-launch, con tutte le opzioni specificate
             .unwrap().enable(); //abilita l'avvio automatico della tua applicazione. Dopo aver chiamato questo metodo, l'applicazione "Group-35" verrà configurata per avviarsi automaticamente all'accensione del sistema
-
-        Command::new("osascript") //comando di macOS che permette di eseguire script AppleScript direttamente dalla linea di comando
-            .arg("-e") // indica che il successivo comando sarà uno script passato direttamente sulla linea di comando
-            .arg("tell application \"Terminal\" to set visible of front window to false") //script AppleScript vero e proprio. L'istruzione tell application "Terminal" invia un comando all'applicazione Terminale
-            .output() //Esegue il comando e raccoglie l'output del processo
-            .expect("Failed to hide terminal"); //Se il comando non viene eseguito correttamente
     }
 
     /*
@@ -65,46 +82,53 @@ fn main() {
     */
 
     // Verifica se il file "output.csv" esiste nella directory corrente
-    if Path::new("output.csv").exists() {
+    let path_csv = desktop_path
+        .join("Group-35")
+        .join("output.csv");
+
+    if path_csv.exists() {
         println!("Il file 'output.csv' esiste. Non lancio la GUI");
 
     } else {
         println!("Il file 'output.csv' non esiste. Lancio la GUI");
-        // Definisci il comando da eseguire
 
-        // Rileva il sistema operativo
-        let os = env::consts::OS;
+        //determino il path della gui
+        let mut path_gui = base_path.clone().join("gui");
 
-        // Definisci il comando da eseguire in base al sistema operativo
-        let command = match os {
-            "windows" => "release\\windows\\gui.exe", // Comando per Windows
-            "macos" => "release/macos/gui", // Comando per macOS
-            "linux" => "release/linux/gui", // Comando per Linux
-            _ => {
-                eprintln!("Sistema operativo non supportato.");
-                return;
-            }
-        };
+        // Se il sistema è Windows, aggiungi l'estensione ".exe"
+        #[cfg(windows)]
+        {
+            path_gui.set_extension("exe");
+        }
+
+        println!("GUI path: {:?}", path_gui);
 
         // Esegui il comando
-        let status = Command::new(command)
+        let mut status = Command::new(path_gui.clone())
             .status()
             .expect("Errore durante l'esecuzione del comando");
 
-        // Controlla se il comando è stato eseguito con successo
-        if status.success() {
-            println!("Il comando è stato eseguito con successo.");
-        } else {
-            eprintln!("Il comando ha restituito un errore.");
+        // Controlla se il comando è stato eseguito con successo, altrimenti rimostra la gui
+        while !(status.success()) {
+            println!("Errore nella creazione della GUI.");
+            status = Command::new(path_gui.clone())
+                .status()
+                .expect("Errore durante l'esecuzione del comando");
         }
+
+        println!("Il comando è stato eseguito con successo.");
     }
 
 
-    /* Processo di che avvia l'applicazione  */
-    let exe = env::current_exe().unwrap(); // exe path
-    let wd = exe.parent().unwrap();
-    let backup_path = wd.join("main");
+    /* Processo di che avvia l'applicazione del backup */
+    let mut path_main = base_path.clone().join("main");
+    // Se il sistema è Windows, aggiungi l'estensione ".exe"
+    #[cfg(windows)]
+    {
+        path_main.set_extension("exe");
+    }
 
+    println!("Backup path: {:?}", path_main);
 
     //avvio background dell'app
     #[cfg(target_os = "windows")]
@@ -112,18 +136,18 @@ fn main() {
         let output = Command::new("tasklist") //controllo la lista dei processi attivi in windows
             .args(&["/FI", "IMAGENAME eq main.exe", "/FO", "CSV", "/NH"]) //filtro per quelli che hanno il nome "main.exe" e li metto in un formato CSV
             .output()
-            .expect("Failed to execute command");
+            .expect("Il comando tasklist non è stato eseguito con successo.");
 
         let exists = String::from_utf8_lossy(&output.stdout).split(",").count() > 1; //output viene decodificato
 
         if exists { //se è già nella lista dei processi in esecuzione
-            println!("Backup App already running!");
+            println!("L'app di backup è già in esecuzione!");
         } else { //altrimenti lo avvio
-            let mut backup_app = Command::new(backup_path)
+            let mut backup_app = Command::new(path_main)
                 .spawn()
-                .expect("Failed to create backup");
+                .expect("Il comando per la crezione dell'app non è stata eseguita con successo.");
 
-            backup_app.wait().expect("Failed to wait on backup");
+            backup_app.wait().expect("Impossibile attendere il backup");
         }
 
     }
@@ -131,25 +155,23 @@ fn main() {
     #[cfg(not(target_os = "windows"))]
     {
         let pid = Command::new("pgrep")  //cerca il processo con il nome specificato da dal path
-            .args(&["-f", &backup_path.to_str().unwrap()])
+            .args(&["-f", &path_main.to_str().unwrap()])
             .output();
         //se restituisce Ok(_) significa che non è avvenuto nessun errore e bisogna controllare che il processo sia in esecuzione tramite il pid
-
         match &pid {
             Ok(_) => {
                 //se il processo è in esecuzione il comando restituisce su stdout il pid del processo altrimenti stdout è vuoto
                 if !pid.unwrap().stdout.is_empty() {
-                    println!("Backup App already running!");
+                    println!("L'app di backup è già in esecuzione!");
                 } else {
-                    let mut backup_app = Command::new(backup_path)
+                    let mut backup_app = Command::new(path_main)
                         .spawn()
-                        .expect("Failed to execute process");
+                        .expect("Il comando per la crezione dell'app non è stata eseguita con successo.");
 
-                    backup_app.wait().expect("Failed to wait on backup");
+                    backup_app.wait().expect("Impossibile attendere il backup");
                 }
             },
-            Err(e) => println!("Error: {}", e),
+            Err(e) => println!("Errore: {}", e),
         }
     }
-
 }

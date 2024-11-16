@@ -25,11 +25,12 @@ Le info che servono per la configurazione (da inserire in CLI o in GUI se si rie
 - Directory dove salvare il log di sistema
 
 ## COSA RIMANE DA FARE:
-- Check: se il drive esterno non è più presente, annulla il backup sennò va in panic OK
-- Gestire la X o il tasto chiudi per inserire i valori di default nella CSV
-- Rendere dinamici i parametri delle funzioni per backup (forme e path) OK, CHECK LOG
-- Pop Up di conferma: dopo la prima conferma c’è un pop up che scompare dopo 10sec, risolvi problema EventLoop
-- Test eseguibili per le diverse architetture OK
-- inserire una lista di filtri di file (es. all, pdf, mp4..)
+- problema delle directory quando viene fatta la reliese
+- togliere tutti i warning
+- refactoring del codice: scrivere commenti, aggiornare i println con robe sensate, mettere le struct in file a parte
 - controllare se il processo principale del backup può essere aperto in contemporanea alla gui
+- ultimare la relazione
+- test su linux
+- test su windows
+- a inizio gennaio fare una prova per capire chi deve dire/mostrare cosa
 

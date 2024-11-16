@@ -11,7 +11,7 @@ L'app è portatile, cioè è un programma software che può essere eseguito su u
 Per lanciare i comandi seguenti assicurati di essere nella directory principale del progetto.
 Il programma è composto dai seguenti file:
 - `mainBackground.rs`: contiene un'applicazione che esegue periodicamente alcune operazioni in background, tra cui la registrazione su un file di log ogni secondo per un periodo di tempo, oltre a configurare l'avvio automatico dell'applicazione all'avvio del sistema operativo, con specifiche implementazioni per Windows, Linux e macOS
-- `uninstallBackground.rs`: questo file Rust ha l'obiettivo di disabilitare l'avvio automatico di un'applicazione chiamata "Group-35" e di terminare la sua esecuzione, a seconda del sistema operativo in uso (Windows, macOS, o Linux)
+- `uninstall_background`: questo file Rust ha l'obiettivo di disabilitare l'avvio automatico di un'applicazione chiamata "Group-35" e di terminare la sua esecuzione, a seconda del sistema operativo in uso (Windows, macOS, o Linux)
 - `backup.rs`: questo programma in Rust è progettato per eseguire un backup di una directory su un drive esterno rimovibile, formata dalle seguenti funzioni:
   - `list_external_drives`: 
     - utilizza la libreria `sysinfo` per ottenere un elenco di drive esterni (rimovibili) collegati al sistema
@@ -48,7 +48,7 @@ Il processo viene identificato in maniera univoca attraverso il suo PID, e il fi
   In caso di problemi lanciare singolarmente i vari comandi che permettono di eseguire i vari processi singolarmente:
   - lanciare `release/windows/gui`
   - lanciare `release/windows/uninstall`
-  - lanciare `release/windows/Group35`
+  - lanciare `release/windows/Group-35`
   
 - Per qualsiasi **modifica** al codice, disinstallare il programma ed eseguire lo script per ricostruire il progetto eseguendo il seguente comando
   ```
@@ -82,7 +82,7 @@ Lo script `windows_build_release.bat` effettua i seguenti passaggi:
   In caso di problemi lanciare singolarmente i vari comandi che permettono di eseguire i vari processi singolarmente:
     - lanciare `release/macos-arm/gui` o `release/macos-intel/gui`
     - lanciare `release/macos-arm/uninstall` o `release/macos-intel/uninstall` 
-    - lanciare `release/macos-arm/Group35` o `release/macos-intel/Group35`
+    - lanciare `release/macos-arm/Group-35` o `release/macos-intel/Group-35`
 - Per qualsiasi **modifica** del codice, disintallare il programma ed eseguire lo script per fare il rebuild del progetto 
   ```
   macos_build_release.sh
