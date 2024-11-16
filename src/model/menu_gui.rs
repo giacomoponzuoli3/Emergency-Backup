@@ -302,7 +302,7 @@ impl Sandbox for MyApp {
         let radio_segno_conferma = row![
             radio("Rettangolo", Segno::Rettangolo, self.radio_segno_conferma, Message::SegnoSelectedConferma),
             radio("Cerchio", Segno::Cerchio, self.radio_segno_conferma, Message::SegnoSelectedConferma),
-            radio("Meno", Segno::Meno, self.radio_segno_avvio, Message::SegnoSelectedAvvio)
+            radio("Meno", Segno::Meno, self.radio_segno_conferma, Message::SegnoSelectedConferma)
         ]
             .spacing(20);
 

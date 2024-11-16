@@ -39,7 +39,7 @@ fn main() {
     };
 
     //determino il path dell'auto start
-    let auto_start_path = base_path.join("Group-35");
+    let mut auto_start_path = base_path.join("Group-35");
 
 
     // Se il sistema è Windows, aggiungi l'estensione ".exe"
