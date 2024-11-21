@@ -7,6 +7,7 @@ use std::path::{Path, PathBuf};
 use std::thread;
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex};
+use std::fs::create_dir_all;
 
 use std::fs::File;
 use std::io::{Error, Write};
@@ -17,6 +18,35 @@ use crate::model::path_base::get_base_path;
 // ESEMPIO BASE SCRITTURA FILE LOG OGNI 2 MINUTI
 // bisogna prendere l'utilizzo di CPU del processo
 
+fn create_autostart_linux(app_name: &str, app_path: &str) {
+    // Trova la cartella di autostart dell'utente
+    let autostart_dir = dirs::home_dir()
+        .unwrap()
+        .join(".config")
+        .join("autostart");
+
+    // Se la cartella di autostart non esiste, la crea
+    if !autostart_dir.exists() {
+        create_dir_all(&autostart_dir).expect("Impossibile creare la cartella autostart");
+    }
+
+    // Crea un file .desktop per l'applicazione
+    let file_path = autostart_dir.join(format!("{}.desktop", app_name));
+    let mut file = File::create(file_path).expect("Impossibile creare il file .desktop");
+
+    // Scrivi il contenuto del file .desktop
+    let content = format!(
+        "[Desktop Entry]\n\
+        Name={}\n\
+        Exec={}\n\
+        Type=Application\n\
+        X-GNOME-Autostart-enabled=true\n\
+        ",
+        app_name, app_path
+    );
+
+    file.write_all(content.as_bytes()).expect("Errore durante la scrittura del file .desktop");
+}
 
 fn main() {
 
@@ -51,7 +81,7 @@ fn main() {
     println!("Auto start path: {:?}", auto_start_path);
 
     //configurazione autostart per Windows e linux
-    #[cfg(not(target_os = "macos"))]
+    #[cfg(target_os = "windows")]
     {
         let auto = AutoLaunchBuilder::new()
             .set_app_name("Group-35")
@@ -74,6 +104,12 @@ fn main() {
             .set_use_launch_agent(false) //Questo imposta se utilizzare i Launch Agents su macOS (in questo caso no)
             .build() //Crea la configurazione completa per l'auto-launch, con tutte le opzioni specificate
             .unwrap().enable(); //abilita l'avvio automatico della tua applicazione. Dopo aver chiamato questo metodo, l'applicazione "Group-35" verrà configurata per avviarsi automaticamente all'accensione del sistema
+    }
+
+    #[cfg(target_os = "linux")]
+    {
+        // Genera il file per l'autostart su Linux
+        create_autostart_linux("Group-35", &auto_start_path.to_str().unwrap());
     }
 
     /*
