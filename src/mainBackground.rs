@@ -15,9 +15,6 @@ use std::time::{Duration, Instant};
 use crossbeam_channel::tick;
 use crate::model::path_base::get_base_path;
 
-// ESEMPIO BASE SCRITTURA FILE LOG OGNI 2 MINUTI
-// bisogna prendere l'utilizzo di CPU del processo
-
 fn create_autostart_linux(app_name: &str, app_path: &str) {
     // Trova la cartella di autostart dell'utente
     let autostart_dir = dirs::home_dir()

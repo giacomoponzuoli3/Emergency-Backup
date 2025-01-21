@@ -19,9 +19,9 @@ pub(crate) fn shape_recognizer(shape: Arc<Segno>, state: Arc<Mutex<MouseState>>,
         let _ = std::panic::catch_unwind(|| {
             listen(move |event: Event| {
                 let mut state = state_clone.lock().unwrap();
-                const TOLERANCE: f64 = 5.0;
-                const CIRCLE_TOLERANCE: f64 = 65.0;
-                const LINE_TOLERANCE: f64 = 35.0;
+                const TOLERANCE: f64 = 15.0;
+                const CIRCLE_TOLERANCE: f64 = 15.0;
+                const LINE_TOLERANCE: f64 = 15.0;
 
                 match event.event_type {
                     EventType::MouseMove { x, y } => {
