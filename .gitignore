@@ -2,4 +2,4 @@ target/
 .DS_Store
 ./release/.DS_Store
 output.csv
-
+release
