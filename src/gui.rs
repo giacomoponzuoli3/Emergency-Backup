@@ -1,6 +1,6 @@
 use iced::{Sandbox, Settings};
 
-mod model;
+//mod model;
 use crate::model::menu_gui::MyApp;
 
 pub fn main() -> iced::Result {
