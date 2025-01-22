@@ -54,7 +54,7 @@ fn main() {
     let desktop_path = dirs::desktop_dir()
         .expect("Impossibile ottenere la cartella Desktop");
 
-    //base path per tutti gli eseguibili è ../Desktop/Group-35/release
+    //base path per tutti gli eseguibili è ../Desktop/Group-35/release/sistema_operativo
     let mut base_path: PathBuf = desktop_path
         .join("Group-35")// Aggiungi la cartella "Group-35"
         .join("release");   // Aggiungi il file specificato
@@ -68,7 +68,6 @@ fn main() {
     //determino il path dell'auto start
     let mut auto_start_path = base_path.join("Group-35");
 
-
     // Se il sistema è Windows, aggiungi l'estensione ".exe"
     #[cfg(windows)]
     {
@@ -77,7 +76,7 @@ fn main() {
 
     println!("Auto start path: {:?}", auto_start_path);
 
-    //configurazione autostart per Windows e linux
+    //configurazione autostart per Windows
     #[cfg(target_os = "windows")]
     {
         let auto = AutoLaunchBuilder::new()
@@ -90,7 +89,6 @@ fn main() {
         auto.enable().unwrap();
         println!("Autostart enabled: {}", auto.is_enabled().unwrap());
     }
-
 
     #[cfg(target_os = "macos")]
     {
@@ -105,7 +103,7 @@ fn main() {
 
     #[cfg(target_os = "linux")]
     {
-        // Genera il file per l'autostart su Linux
+        // Genera il file per l'autostart su Linux-
         create_autostart_linux("Group-35", &auto_start_path.to_str().unwrap());
     }
 
@@ -113,8 +111,6 @@ fn main() {
     Controllo che non ci sia un file output.csv all'interno della directory corrente,
     se non c'è lancio la gui altrimenti no
     */
-
-    // Verifica se il file "output.csv" esiste nella directory corrente
     let path_csv = desktop_path
         .join("Group-35")
         .join("output.csv");
@@ -185,6 +181,7 @@ fn main() {
 
     }
 
+    //linux e os
     #[cfg(not(target_os = "windows"))]
     {
         let pid = Command::new("pgrep")  //cerca il processo con il nome specificato da dal path
@@ -193,7 +190,7 @@ fn main() {
         //se restituisce Ok(_) significa che non è avvenuto nessun errore e bisogna controllare che il processo sia in esecuzione tramite il pid
         match &pid {
             Ok(_) => {
-                //se il processo è in esecuzione il comando restituisce su stdout il pid del processo altrimenti stdout è vuoto
+                //se il processo è in esecuzione il comando restituisce su stdout il pid del processo altrimenti stdout è vuoto ma non restituisce errore
                 if !pid.unwrap().stdout.is_empty() {
                     println!("L'app di backup è già in esecuzione!");
                 } else {
