@@ -8,6 +8,7 @@ use rfd::FileDialog;
 use rfd::MessageDialog;
 use serde::{Deserialize, Serialize};
 
+/// Rappresenta l'applicazione principale con i dati configurabili dall'utente
 #[derive(Serialize, Deserialize)]
 pub struct MyApp {
     text_cartella_sorgente: String,
@@ -21,6 +22,7 @@ pub struct MyApp {
     check_doc: bool
 }
 
+/// Struttura per rappresentare i valori di output salvati nel file CSV
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OutputValue{
     pub text_cartella_sorgente: String,
@@ -34,6 +36,7 @@ pub struct OutputValue{
     pub check_doc: bool
 }
 
+/// Enum per i possibili segni selezionabili
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Segno{
     Rettangolo,
@@ -41,6 +44,7 @@ pub enum Segno{
     Meno
 }
 
+/// Enum per rappresentare i messaggi dell'interfaccia utente
 #[derive(Debug, Clone)]
 pub enum Message {
     InputCartellaSorgente(String),
@@ -59,6 +63,7 @@ pub enum Message {
 }
 
 impl MyApp {
+    /// Carica i dati dal file CSV specificato
     pub fn load_from_csv(file_path: &str) -> Result<MyApp, Box<dyn Error>> {
         let file;
 
@@ -87,6 +92,7 @@ impl MyApp {
         Ok(app)
     }
 
+    /// Ottiene i valori correnti dell'applicazione o li inizializza se il file CSV non esiste
     pub fn get_value() -> OutputValue {
         if let Some(app) = MyApp::load_from_csv("output.csv").ok() {
             return OutputValue{
@@ -102,6 +108,7 @@ impl MyApp {
             };
         }
 
+        // Inizializza con valori di default e salva il file CSV
         let file = File::create("output.csv").expect("Non posso creare il file CSV");
         let mut wtr = Writer::from_writer(file);
 
@@ -122,6 +129,7 @@ impl MyApp {
     }
 }
 
+/// Implementa i valori di default per MyApp
 impl Default for MyApp{
     fn default() -> Self {
         MyApp{
@@ -144,6 +152,7 @@ impl Default for MyApp{
     }
 }
 
+/// Implementazione della logica per l'applicazione Sandbox
 impl Sandbox for MyApp {
     type Message = Message;
 
@@ -155,10 +164,12 @@ impl Sandbox for MyApp {
         Self::default()
     }
 
+    /// Titolo della finestra
     fn title(&self) -> String {
         String::from("Impostazioni Backup")
     }
 
+    /// Aggiorna lo stato dell'applicazione in base al messaggio ricevuto
     fn update(&mut self, message: Message) {
         match message {
             Message::InputCartellaSorgente(value) => {
@@ -205,7 +216,7 @@ impl Sandbox for MyApp {
             }
 
             Message::ButtonSalva =>{
-                //validazioni
+                // Validazioni dei campi
                 let mut flag = 0;
                 if self.text_cartella_sorgente.is_empty() || self.text_drive_destinazione.is_empty()
                     || self.text_directory_log.is_empty()  || self.radio_segno_conferma.is_none() || self.radio_segno_avvio.is_none(){
@@ -229,13 +240,11 @@ impl Sandbox for MyApp {
                 }
 
 
-
-
                 if flag == 0{
 
                     let file;
 
-                    // Verifica se siamo in modalità di release
+                    // Controlla se siamo in modalità di release
                     if cfg!(not(debug_assertions)) {
 
                         let desktop_path = dirs::desktop_dir()
@@ -268,6 +277,7 @@ impl Sandbox for MyApp {
         }
     }
 
+    /// Costruisce l'interfaccia utente
     fn view(&self) -> Element<Message> {
         let input_cartella_sorgente = text_input("Enter something...", &self.text_cartella_sorgente)
             .on_input(Message::InputCartellaSorgente);
