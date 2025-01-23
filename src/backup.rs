@@ -6,6 +6,7 @@ use sysinfo::{DiskExt, System, SystemExt};
 use walkdir::WalkDir;
 use crate::beep::play_beep;
 
+// crea una lista dei dischi esterni presenti
 fn list_external_drives() -> Vec<String> {
     let mut system = System::new_all();
     system.refresh_disks_list();
@@ -21,10 +22,11 @@ fn list_external_drives() -> Vec<String> {
     drives
 }
 
+// copia ricorsivamente tutti i file da cartella sorgente a destinazione, tenendo conto dei filtri
 fn copy_directory(src: &Path, dst: &Path, file_types: &[String]) -> io::Result<(u64, Duration)> {
     let start_time = Instant::now();
     let mut total_bytes = 0;
-
+//  itera su tutti i file e cartelle nella directory sorgente e ricrea la directory nella cartella destinazione
     for entry in WalkDir::new(src) {
         let entry = entry?;
         let path = entry.path();
@@ -59,9 +61,7 @@ fn should_copy_file(path: &Path, file_types: &[String]) -> bool {
 
 pub fn backup_execute(selected_drive: &String, src_dir: &str, file_types: &[String]) -> io::Result<()> {
 
-
         let drives = list_external_drives();
-        //println!("{:?}", &src_dir);
         if !drives.contains(selected_drive) {
             println!("Il drive esterno indicato non è corretto. Aggiornare la configurazione");
             play_beep(Duration::from_millis(750), 220.0); // Bip lungo

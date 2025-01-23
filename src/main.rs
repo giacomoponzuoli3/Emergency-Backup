@@ -28,7 +28,7 @@ fn main() {
 
    let value = MyApp::get_value();
 
-   let pid = std::process::id(); // Usa l'ID del processo corrente per testare
+   let pid = std::process::id(); // prendi l'ID del processo corrente per fare monitoring
 
    // Avvia il processo di monitoraggio della CPU in maniera parallela rispetto alla funzionalità di backup
    thread::spawn(move||{
@@ -116,7 +116,7 @@ fn main() {
                enabled = false;
 
                let mut vec_filter = Vec::new();
-
+               // definisci le estensioni per filtrare i dati da includere nel backup
                if value.check_music==false && value.check_doc==false && value.check_img==false && value.check_video==false{
                   vec_filter.push("all".to_string());
                }else {

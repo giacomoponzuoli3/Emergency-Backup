@@ -16,7 +16,9 @@ pub(crate) fn shape_recognizer(shape: Arc<Segno>, state: Arc<Mutex<MouseState>>,
     let state_clone = Arc::clone(&state);
 
     thread::spawn(move || {
+        // attura eventuali panic e invece di far crashare l'intero programma, il panic viene intercettato, e il thread può terminare in modo sicuro
         let _ = std::panic::catch_unwind(|| {
+            // consente di ascoltare eventi del mouse e della tastiera
             listen(move |event: Event| {
                 let mut state = state_clone.lock().unwrap();
                 const TOLERANCE: f64 = 15.0;
@@ -26,8 +28,6 @@ pub(crate) fn shape_recognizer(shape: Arc<Segno>, state: Arc<Mutex<MouseState>>,
                 match event.event_type {
                     EventType::MouseMove { x, y } => {
                         state.points.push_back((x, y));
-
-
 
                         match shape_ref.as_ref() {
                             Segno::Cerchio => {
