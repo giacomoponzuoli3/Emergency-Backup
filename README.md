@@ -52,4 +52,5 @@ sudo apt install librust-also-sys-dev
 If you have any questions, issues, or feedback, feel free to reach out to us:
 
 - **Email**: ponzuoligiacomo@gmail.com
+- **Linkedin**: [Giacomo Ponzuoli](https://www.linkedin.com/in/giacomo-ponzuoli/)
 - **GitHub Issues**: [Open an issue](https://github.com/giacomoponzuoli3/Emergency-Backup/issues)
