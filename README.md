@@ -51,6 +51,23 @@ sudo apt install librust-also-sys-dev
 
 If you have any questions, issues, or feedback, feel free to reach out to us:
 
-- **Email**: ponzuoligiacomo@gmail.com
-- **Linkedin**: [Giacomo Ponzuoli](https://www.linkedin.com/in/giacomo-ponzuoli/)
-- **GitHub Issues**: [Open an issue](https://github.com/giacomoponzuoli3/Emergency-Backup/issues)
+<p style="display: flex; align-items: center;">
+  <a href="mailto:ponzuoligiacomo@gmail.com" style="display: flex; align-items: center;">
+    <img src="https://img.icons8.com/color/25/000000/gmail.png" alt="Email" style="margin-right: 10px;" />
+    ponzuoligiacomo@gmail.com
+  </a>
+</p>
+
+<p style="display: flex; align-items: center;">
+  <a href="https://www.linkedin.com/in/giacomo-ponzuoli/" style="display: flex; align-items: center;">
+    <img src="https://img.icons8.com/color/25/000000/linkedin.png" alt="LinkedIn" style="margin-right: 10px;" />
+    Giacomo Ponzuoli
+  </a>
+</p>
+
+<p style="display: flex; align-items: center;">
+  <a href="https://github.com/giacomoponzuoli3/Emergency-Backup/issues" style="display: flex; align-items: center;">
+    <img src="https://img.icons8.com/color/25/000000/github.png" alt="GitHub" style="margin-right: 10px;" />
+    Open an issue
+  </a>
+</p>
